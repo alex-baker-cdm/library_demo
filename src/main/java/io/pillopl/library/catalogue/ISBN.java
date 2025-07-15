@@ -6,7 +6,7 @@ import lombok.Value;
 @Value
 class ISBN {
 
-    private static final String VERY_SIMPLE_ISBN_CHECK = "^\\d{9}[\\d|X]$";
+    private static final String VERY_SIMPLE_ISBN_CHECK = "^97[89]\\d{10}$";
 
     @NonNull
     String isbn;

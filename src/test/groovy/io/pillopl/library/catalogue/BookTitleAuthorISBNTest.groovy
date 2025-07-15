@@ -49,16 +49,16 @@ class BookTitleAuthorISBNTest extends Specification {
 
     def "isbn should be correct"() {
         when:
-            ISBN isbn = new ISBN("123412341X")
+            ISBN isbn = new ISBN("9780321125217")
         then:
-            isbn.isbn == "123412341X"
+            isbn.isbn == "9780321125217"
     }
 
     def "isbn should be trimmed"() {
         when:
-            ISBN isbn = new ISBN("  1234123414  ")
+            ISBN isbn = new ISBN("  9780321125218  ")
         then:
-            isbn.isbn == "1234123414"
+            isbn.isbn == "9780321125218"
     }
 
     def "wrong isbn should not be accepted"() {
