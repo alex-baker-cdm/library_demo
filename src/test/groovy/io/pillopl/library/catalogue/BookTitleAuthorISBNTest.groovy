@@ -47,11 +47,25 @@ class BookTitleAuthorISBNTest extends Specification {
             thrown(NullPointerException)
     }
 
-    def "isbn should be correct"() {
+    def "isbn-13 should be correct"() {
         when:
             ISBN isbn = new ISBN("9780321125217")
         then:
             isbn.isbn == "9780321125217"
+    }
+
+    def "isbn-10 should be correct"() {
+        when:
+            ISBN isbn = new ISBN("0321125215")
+        then:
+            isbn.isbn == "0321125215"
+    }
+
+    def "isbn-10 with X should be correct"() {
+        when:
+            ISBN isbn = new ISBN("032112521X")
+        then:
+            isbn.isbn == "032112521X"
     }
 
     def "isbn should be trimmed"() {
