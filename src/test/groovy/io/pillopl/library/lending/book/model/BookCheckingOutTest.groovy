@@ -1,5 +1,6 @@
 package io.pillopl.library.lending.book.model
 
+import io.pillopl.library.lending.book.new_model.Book
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
 import spock.lang.Specification
 
@@ -23,7 +24,7 @@ class BookCheckingOutTest extends Specification {
             BookCheckedOut bookCheckedOutEvent = the bookOnHold isCheckedOutBy anyPatron() at aBranch
 
         when:
-            CheckedOutBook checkedOutBook = the bookOnHold reactsTo bookCheckedOutEvent
+            Book checkedOutBook = the bookOnHold reactsTo bookCheckedOutEvent
 
         then:
             checkedOutBook.bookId == bookOnHold.bookId

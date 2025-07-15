@@ -2,7 +2,7 @@ package io.pillopl.library.lending;
 
 import io.pillopl.library.catalogue.BookId;
 import io.pillopl.library.commons.aggregates.Version;
-import io.pillopl.library.lending.book.model.AvailableBook;
+import io.pillopl.library.lending.book.new_model.Book;
 import io.pillopl.library.lending.book.model.BookInformation;
 import io.pillopl.library.lending.book.model.BookRepository;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
@@ -67,7 +67,7 @@ class LendingDatabaseConfig extends AbstractJdbcConfiguration {
             UUID libraryBranchId = UUID.randomUUID();
             UUID patronId = UUID.randomUUID();
 
-            AvailableBook availableBook = new AvailableBook(new BookInformation(new BookId(bookId), Circulating), new LibraryBranchId(libraryBranchId), new Version(0));
+            Book availableBook = new Book(new BookId(bookId), Circulating, new LibraryBranchId(libraryBranchId), new Version(0));
             bookRepository.save(availableBook);
             patrons.publish(PatronCreated.now(new PatronId(patronId), Regular));
 

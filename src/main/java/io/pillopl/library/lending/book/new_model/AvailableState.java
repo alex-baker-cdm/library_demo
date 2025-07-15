@@ -6,19 +6,27 @@ import io.pillopl.library.commons.aggregates.Version;
 import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 
-@RequiredArgsConstructor
 public class AvailableState implements BookState {
-    private final Book book;
+    private Book book;
     private final LibraryBranchId branch;
+
+    public AvailableState(Book book, LibraryBranchId branch) {
+        this.book = book;
+        this.branch = branch;
+    }
 
     @Override
     public BookState placeOnHold(PatronId patronId, LibraryBranchId branchId, Instant holdTill) {
-        return new OnHoldState(book, branchId, patronId, holdTill);
+        OnHoldState newState = new OnHoldState(book, branchId, patronId, holdTill);
+        newState.setBook(book);
+        return newState;
     }
 
     @Override
     public BookState checkout(PatronId patronId, LibraryBranchId branchId) {
-        return new CheckedOutState(book, branchId, patronId);
+        CheckedOutState newState = new CheckedOutState(book, branchId, patronId);
+        newState.setBook(book);
+        return newState;
     }
 
     @Override
@@ -69,5 +77,9 @@ public class AvailableState implements BookState {
     @Override
     public PatronId getCurrentPatron() {
         return null;
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
     }
 }

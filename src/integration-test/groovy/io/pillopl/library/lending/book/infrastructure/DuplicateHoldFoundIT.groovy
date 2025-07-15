@@ -2,7 +2,7 @@ package io.pillopl.library.lending.book.infrastructure
 
 import io.pillopl.library.common.events.publisher.DomainEventsTestConfig
 import io.pillopl.library.lending.LendingTestContext
-import io.pillopl.library.lending.book.model.AvailableBook
+import io.pillopl.library.lending.book.new_model.Book
 import io.pillopl.library.lending.book.model.BookFixture
 import io.pillopl.library.lending.book.model.BookRepository
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
@@ -33,7 +33,7 @@ class DuplicateHoldFoundIT extends Specification {
     PatronId anotherPatron = anyPatronId()
 
     LibraryBranchId libraryBranchId = anyBranch()
-    AvailableBook book = BookFixture.circulatingBook()
+    Book book = BookFixture.circulatingBook()
 
     @Autowired
     Patrons patronRepo
@@ -62,7 +62,7 @@ class DuplicateHoldFoundIT extends Specification {
 
     }
 
-    BookPlacedOnHoldEvents placedOnHold(AvailableBook book, PatronId patronId) {
+    BookPlacedOnHoldEvents placedOnHold(Book book, PatronId patronId) {
         return events(bookPlacedOnHoldNow(
                 book.getBookId(),
                 book.type(),

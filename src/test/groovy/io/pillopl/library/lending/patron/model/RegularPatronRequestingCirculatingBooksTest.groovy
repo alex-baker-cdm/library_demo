@@ -1,6 +1,6 @@
 package io.pillopl.library.lending.patron.model
 
-import io.pillopl.library.lending.book.model.AvailableBook
+import io.pillopl.library.lending.book.new_model.Book
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
 import io.vavr.control.Either
 import spock.lang.Specification
@@ -30,7 +30,7 @@ class RegularPatronRequestingCirculatingBooksTest extends Specification {
 
     def 'a regular patron can place on hold book when he did not place on hold more than 4 books'() {
         given:
-            AvailableBook book = circulatingBook()
+            Book book = circulatingBook()
         when:
             Either<BookHoldFailed, BookPlacedOnHoldEvents> hold = regularPatronWithHolds(holds).placeOnHold(book, closeEnded(3))
         then:
@@ -72,7 +72,7 @@ class RegularPatronRequestingCirculatingBooksTest extends Specification {
 
     def 'a regular patron can place on hold books when he does not have 2 overdues'() {
         given:
-            AvailableBook book = circulatingBook()
+            Book book = circulatingBook()
         when:
             Either<BookHoldFailed, BookPlacedOnHoldEvents> hold = regularPatronWithOverdueCheckouts(anyBranch(), books).placeOnHold(book, closeEnded(3))
         then:

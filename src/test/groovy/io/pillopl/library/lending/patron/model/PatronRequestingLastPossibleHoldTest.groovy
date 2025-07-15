@@ -1,6 +1,6 @@
 package io.pillopl.library.lending.patron.model
 
-import io.pillopl.library.lending.book.model.AvailableBook
+import io.pillopl.library.lending.book.new_model.Book
 import io.vavr.control.Either
 import spock.lang.Specification
 
@@ -14,7 +14,7 @@ class PatronRequestingLastPossibleHoldTest extends Specification {
 
     def 'should announce that a regular patron places his last possible hold (4th)'() {
         given:
-            AvailableBook book = circulatingBook()
+            Book book = circulatingBook()
         when:
             Either<BookHoldFailed, BookPlacedOnHoldEvents> hold = regularPatronWithHolds(4).placeOnHold(book, closeEnded(3))
         then:

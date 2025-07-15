@@ -3,7 +3,7 @@ package io.pillopl.library.lending.book.application
 import io.pillopl.library.catalogue.BookId
 import io.pillopl.library.catalogue.BookInstanceAddedToCatalogue
 import io.pillopl.library.catalogue.BookType
-import io.pillopl.library.lending.book.model.AvailableBook
+import io.pillopl.library.lending.book.new_model.Book
 import io.pillopl.library.lending.book.model.Book
 import io.pillopl.library.lending.book.model.BookFixture
 import io.pillopl.library.lending.book.model.BookRepository

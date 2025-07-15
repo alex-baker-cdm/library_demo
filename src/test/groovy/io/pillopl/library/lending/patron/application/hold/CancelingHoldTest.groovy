@@ -1,7 +1,7 @@
 package io.pillopl.library.lending.patron.application.hold
 
 import io.pillopl.library.commons.commands.Result
-import io.pillopl.library.lending.book.model.BookOnHold
+import io.pillopl.library.lending.book.new_model.Book
 
 import io.pillopl.library.lending.patron.model.*
 import io.vavr.control.Option
@@ -16,7 +16,7 @@ import static io.pillopl.library.lending.patron.model.PatronFixture.anyPatronId
 
 class CancelingHoldTest extends Specification {
 
-    BookOnHold bookOnHold = bookOnHold()
+    Book bookOnHold = bookOnHold()
     PatronId patronId = anyPatronId()
 
     FindBookOnHold willFindBook = { bookId, patronId -> Option.of(bookOnHold) }

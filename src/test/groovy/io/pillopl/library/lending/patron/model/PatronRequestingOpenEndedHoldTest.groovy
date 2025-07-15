@@ -1,6 +1,6 @@
 package io.pillopl.library.lending.patron.model
 
-import io.pillopl.library.lending.book.model.AvailableBook
+import io.pillopl.library.lending.book.new_model.Book
 import io.vavr.control.Either
 import spock.lang.Specification
 
@@ -19,7 +19,7 @@ class PatronRequestingOpenEndedHoldTest extends Specification {
 
     def 'researcher patron can request close ended hold'() {
         given:
-            AvailableBook aBook = circulatingAvailableBook()
+            Book aBook = circulatingAvailableBook()
         and:
             PatronId patronId = anyPatronId()
         and:
@@ -41,7 +41,7 @@ class PatronRequestingOpenEndedHoldTest extends Specification {
 
     def 'regular patron cannot request open ended hold'() {
         given:
-            AvailableBook aBook = circulatingAvailableBook()
+            Book aBook = circulatingAvailableBook()
         and:
             PatronId patronId = anyPatronId()
         and:

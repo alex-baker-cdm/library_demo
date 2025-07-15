@@ -4,6 +4,7 @@ import io.pillopl.library.catalogue.BookId;
 import io.pillopl.library.catalogue.BookType;
 import io.pillopl.library.commons.aggregates.AggregateRootIsStale;
 import io.pillopl.library.lending.book.model.*;
+import io.pillopl.library.lending.book.new_model.Book;
 import io.pillopl.library.lending.patron.application.hold.FindAvailableBook;
 import io.pillopl.library.lending.patron.application.hold.FindBookOnHold;
 import io.pillopl.library.lending.patron.model.PatronId;
@@ -30,7 +31,7 @@ class BookDatabaseRepository implements BookRepository, FindAvailableBook, FindB
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Option<Book> findBy(BookId bookId) {
+    public Option<io.pillopl.library.lending.book.model.Book> findBy(BookId bookId) {
         return findBookById(bookId)
                 .map(BookDatabaseEntity::toDomainModel);
     }
@@ -42,74 +43,58 @@ class BookDatabaseRepository implements BookRepository, FindAvailableBook, FindB
     }
 
     @Override
-    public void save(Book book) {
+    public void save(io.pillopl.library.lending.book.model.Book book) {
         findBy(book.bookId())
-                .map(entity -> updateOptimistically(book))
-                .onEmpty(() -> insertNew(book));
+                .map(entity -> updateOptimistically((Book) book))
+                .onEmpty(() -> insertNew((Book) book));
     }
 
     private int updateOptimistically(Book book) {
-        int result = Match(book).of(
-                Case($(instanceOf(AvailableBook.class)), this::update),
-                Case($(instanceOf(BookOnHold.class)), this::update),
-                Case($(instanceOf(CheckedOutBook.class)), this::update)
-        );
+        int result = update(book);
         if (result == 0) {
             throw new AggregateRootIsStale("Someone has updated book in the meantime, book: " + book);
         }
         return result;
     }
 
-    private int update(AvailableBook availableBook) {
-        return jdbcTemplate.update("UPDATE book_database_entity b SET b.book_state = ?, b.available_at_branch = ?, b.version = ? WHERE book_id = ? AND version = ?",
-                Available.toString(),
-                availableBook.getLibraryBranch().getLibraryBranchId(),
-                availableBook.getVersion().getVersion() + 1,
-                availableBook.getBookId().getBookId(),
-                availableBook.getVersion().getVersion());
-    }
-
-    private int update(BookOnHold bookOnHold) {
-        return jdbcTemplate.update("UPDATE book_database_entity b SET b.book_state = ?, b.on_hold_at_branch = ?, b.on_hold_by_patron = ?, b.on_hold_till = ?, b.version = ? WHERE book_id = ? AND version = ?",
-                OnHold.toString(),
-                bookOnHold.getHoldPlacedAt().getLibraryBranchId(),
-                bookOnHold.getByPatron().getPatronId(),
-                bookOnHold.getHoldTill(),
-                bookOnHold.getVersion().getVersion() + 1,
-                bookOnHold.getBookId().getBookId(),
-                bookOnHold.getVersion().getVersion());
-    }
-
-    private int update(CheckedOutBook checkedoutBook) {
-        return jdbcTemplate.update("UPDATE book_database_entity b SET b.book_state = ?, b.checked_out_at_branch = ?, b.checked_out_by_patron = ?, b.version = ? WHERE book_id = ? AND version = ?",
-                CheckedOut.toString(),
-                checkedoutBook.getCheckedOutAt().getLibraryBranchId(),
-                checkedoutBook.getByPatron().getPatronId(),
-                checkedoutBook.getVersion().getVersion() + 1,
-                checkedoutBook.getBookId().getBookId(),
-                checkedoutBook.getVersion().getVersion());
+    private int update(Book book) {
+        String stateName = book.getCurrentState();
+        if ("AVAILABLE".equals(stateName)) {
+            return jdbcTemplate.update("UPDATE book_database_entity b SET b.book_state = ?, b.available_at_branch = ?, b.version = ? WHERE book_id = ? AND version = ?",
+                    Available.toString(),
+                    book.getCurrentBranch().getLibraryBranchId(),
+                    book.getVersion().getVersion() + 1,
+                    book.getBookId().getBookId(),
+                    book.getVersion().getVersion());
+        } else if ("ON_HOLD".equals(stateName)) {
+            return jdbcTemplate.update("UPDATE book_database_entity b SET b.book_state = ?, b.on_hold_at_branch = ?, b.on_hold_by_patron = ?, b.version = ? WHERE book_id = ? AND version = ?",
+                    OnHold.toString(),
+                    book.getCurrentBranch().getLibraryBranchId(),
+                    book.getCurrentPatron().getPatronId(),
+                    book.getVersion().getVersion() + 1,
+                    book.getBookId().getBookId(),
+                    book.getVersion().getVersion());
+        } else if ("CHECKED_OUT".equals(stateName)) {
+            return jdbcTemplate.update("UPDATE book_database_entity b SET b.book_state = ?, b.checked_out_at_branch = ?, b.checked_out_by_patron = ?, b.version = ? WHERE book_id = ? AND version = ?",
+                    CheckedOut.toString(),
+                    book.getCurrentBranch().getLibraryBranchId(),
+                    book.getCurrentPatron().getPatronId(),
+                    book.getVersion().getVersion() + 1,
+                    book.getBookId().getBookId(),
+                    book.getVersion().getVersion());
+        }
+        return 0;
     }
 
     private void insertNew(Book book) {
-        Match(book).of(
-                Case($(instanceOf(AvailableBook.class)), this::insert),
-                Case($(instanceOf(BookOnHold.class)), this::insert),
-                Case($(instanceOf(CheckedOutBook.class)), this::insert)
-        );
-    }
-
-    private int insert(AvailableBook availableBook) {
-        return insert(availableBook.getBookId(), availableBook.type(), Available, availableBook.getLibraryBranch().getLibraryBranchId(), null, null, null, null, null);
-    }
-
-    private int insert(BookOnHold bookOnHold) {
-        return insert(bookOnHold.getBookId(), bookOnHold.type(), OnHold, null, bookOnHold.getHoldPlacedAt().getLibraryBranchId(), bookOnHold.getByPatron().getPatronId(), bookOnHold.getHoldTill(), null, null);
-
-    }
-
-    private int insert(CheckedOutBook checkedoutBook) {
-        return insert(checkedoutBook.getBookId(), checkedoutBook.type(), CheckedOut, null, null, null, null, checkedoutBook.getCheckedOutAt().getLibraryBranchId(), checkedoutBook.getByPatron().getPatronId());
-
+        String stateName = book.getCurrentState();
+        if ("AVAILABLE".equals(stateName)) {
+            insert(book.getBookId(), book.getBookType(), Available, book.getCurrentBranch().getLibraryBranchId(), null, null, null, null, null);
+        } else if ("ON_HOLD".equals(stateName)) {
+            insert(book.getBookId(), book.getBookType(), OnHold, null, book.getCurrentBranch().getLibraryBranchId(), book.getCurrentPatron().getPatronId(), null, null, null);
+        } else if ("CHECKED_OUT".equals(stateName)) {
+            insert(book.getBookId(), book.getBookType(), CheckedOut, null, null, null, null, book.getCurrentBranch().getLibraryBranchId(), book.getCurrentPatron().getPatronId());
+        }
     }
 
     private int insert(BookId bookId, BookType bookType, BookDatabaseEntity.BookState state, UUID availableAt, UUID onHoldAt, UUID onHoldBy, Instant onHoldTill, UUID checkedOutAt, UUID checkedOutBy) {
@@ -130,19 +115,21 @@ class BookDatabaseRepository implements BookRepository, FindAvailableBook, FindB
     }
 
     @Override
-    public Option<AvailableBook> findAvailableBookBy(BookId bookId) {
-        return Match(findBy(bookId)).of(
-                Case($Some($(instanceOf(AvailableBook.class))), Option::of),
-                Case($(), Option::none)
-        );
+    public Option<Book> findAvailableBookBy(BookId bookId) {
+        return findBy(bookId)
+                .filter(book -> book instanceof Book && "AVAILABLE".equals(((Book) book).getCurrentState()))
+                .map(book -> (Book) book);
     }
 
     @Override
-    public Option<BookOnHold> findBookOnHold(BookId bookId, PatronId patronId) {
-            return Match(findBy(bookId)).of(
-                Case($Some($(instanceOf(BookOnHold.class))), Option::of),
-                Case($(), Option::none)
-        );
+    public Option<Book> findBookOnHold(BookId bookId, PatronId patronId) {
+        return findBy(bookId)
+                .filter(book -> book instanceof Book && "ON_HOLD".equals(((Book) book).getCurrentState()))
+                .filter(book -> {
+                    Book newBook = (Book) book;
+                    return newBook.getCurrentPatron() != null && newBook.getCurrentPatron().equals(patronId);
+                })
+                .map(book -> (Book) book);
     }
 
 }

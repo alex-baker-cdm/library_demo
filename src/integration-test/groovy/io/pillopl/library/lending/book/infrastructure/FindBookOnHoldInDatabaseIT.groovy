@@ -2,8 +2,8 @@ package io.pillopl.library.lending.book.infrastructure
 
 import io.pillopl.library.catalogue.BookId
 import io.pillopl.library.lending.LendingTestContext
-import io.pillopl.library.lending.book.model.AvailableBook
-import io.pillopl.library.lending.book.model.BookOnHold
+import io.pillopl.library.lending.book.new_model.Book
+import io.pillopl.library.lending.book.new_model.Book
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
 import io.pillopl.library.lending.patron.model.HoldDuration
 import io.pillopl.library.lending.patron.model.PatronEvent
@@ -32,13 +32,13 @@ class FindBookOnHoldInDatabaseIT extends Specification {
 
     def 'should find book on hold in database'() {
         given:
-            AvailableBook availableBook = circulatingAvailableBookAt(bookId, libraryBranchId)
+            Book availableBook = circulatingAvailableBookAt(bookId, libraryBranchId)
         when:
             bookEntityRepository.save(availableBook)
         then:
             bookEntityRepository.findBookOnHold(bookId, patronId).isEmpty()
         when:
-            BookOnHold bookOnHold = availableBook.handle(placedOnHoldBy(patronId))
+            Book bookOnHold = availableBook.handle(placedOnHoldBy(patronId))
         and:
             bookEntityRepository.save(bookOnHold)
         then:

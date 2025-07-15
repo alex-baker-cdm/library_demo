@@ -1,7 +1,7 @@
 package io.pillopl.library.lending.patron.model
 
 import io.pillopl.library.lending.book.model.BookFixture
-import io.pillopl.library.lending.book.model.BookOnHold
+import io.pillopl.library.lending.book.new_model.Book
 import io.vavr.control.Either
 import spock.lang.Specification
 
@@ -15,7 +15,7 @@ class PatronCancelingHoldTest extends Specification {
 
     def 'patron should be able to cancel his holds'() {
         given:
-            BookOnHold forBook = BookFixture.bookOnHold()
+            Book forBook = BookFixture.bookOnHold()
         and:
             Patron patron = regularPatronWithHold(forBook)
         when:
@@ -31,7 +31,7 @@ class PatronCancelingHoldTest extends Specification {
 
     def 'patron cannot cancel a hold which does not exist'() {
         given:
-            BookOnHold forBook = BookFixture.bookOnHold()
+            Book forBook = BookFixture.bookOnHold()
         and:
             Patron patron = regularPatron()
         when:
@@ -43,7 +43,7 @@ class PatronCancelingHoldTest extends Specification {
 
     def 'patron cannot cancel a hold which was done by someone else'() {
         given:
-            BookOnHold forBook = BookFixture.bookOnHold()
+            Book forBook = BookFixture.bookOnHold()
         and:
             Patron patron = regularPatron()
         and:

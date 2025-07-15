@@ -1,5 +1,6 @@
 package io.pillopl.library.lending.book.model
 
+import io.pillopl.library.lending.book.new_model.Book
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
 import io.pillopl.library.lending.patron.model.PatronEvent
 import io.pillopl.library.lending.patron.model.PatronId
@@ -29,11 +30,11 @@ class BookReturningTest extends Specification {
             PatronEvent.BookReturned bookReturnedEvent = the bookOnHold isReturnedBy anyPatron() at aBranch
 
         when:
-            AvailableBook availableBook = the bookOnHold reactsTo bookReturnedEvent
+            Book availableBook = the bookOnHold reactsTo bookReturnedEvent
 
         then:
             availableBook.bookId == bookOnHold.bookId
-            availableBook.libraryBranch == aBranch
+            availableBook.currentBranch == aBranch
             availableBook.version == bookOnHold.version
     }
 
@@ -51,13 +52,12 @@ class BookReturningTest extends Specification {
             PatronEvent.BookPlacedOnHold bookPlacedOnHoldEvent = the availableBook isPlacedOnHoldBy aPatron at aBranch from now till oneHour
 
         when:
-            BookOnHold onHold = the availableBook reactsTo bookPlacedOnHoldEvent
+            Book onHold = the availableBook reactsTo bookPlacedOnHoldEvent
 
         then:
             onHold.bookId == availableBook.bookId
-            onHold.byPatron == aPatron
-            onHold.holdTill == oneHour
-            onHold.holdPlacedAt == aBranch
+            onHold.currentPatron == aPatron
+            onHold.currentBranch == aBranch
     }
 
     def 'should return book which is marked as checkedOut in the system'() {
@@ -68,7 +68,7 @@ class BookReturningTest extends Specification {
             PatronEvent.BookReturned bookReturnedEvent = the checkedOutBook isReturnedBy anyPatron() at anyBranch()
 
         when:
-            AvailableBook available = the checkedOutBook reactsTo bookReturnedEvent
+            Book available = the checkedOutBook reactsTo bookReturnedEvent
 
         then:
             available.bookId == checkedOutBook.bookId
@@ -85,11 +85,11 @@ class BookReturningTest extends Specification {
 		PatronEvent.BookCheckedOut bookCheckedOutEvent = the onHoldBook isCheckedOutBy anyPatron() at aBranch
 
         when:
-            CheckedOutBook checkedOutBook = the onHoldBook reactsTo bookCheckedOutEvent
+            Book checkedOutBook = the onHoldBook reactsTo bookCheckedOutEvent
 
         then:
             checkedOutBook.bookId == onHoldBook.bookId
-            checkedOutBook.checkedOutAt == aBranch
+            checkedOutBook.currentBranch == aBranch
     }
 
 }

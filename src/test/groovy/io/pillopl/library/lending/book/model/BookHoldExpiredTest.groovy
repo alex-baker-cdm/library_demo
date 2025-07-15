@@ -1,6 +1,6 @@
 package io.pillopl.library.lending.book.model
 
-
+import io.pillopl.library.lending.book.new_model.Book
 import spock.lang.Specification
 
 import static BookDSL.aCirculatingBook
@@ -20,10 +20,10 @@ class BookHoldExpiredTest extends Specification {
             BookHoldExpired bookHoldExpiredEvent = the bookOnHold expired()
 
         when:
-            AvailableBook availableBook = the bookOnHold reactsTo bookHoldExpiredEvent
+            Book availableBook = the bookOnHold reactsTo bookHoldExpiredEvent
         then:
             availableBook.bookId == bookOnHold.bookId
-            availableBook.libraryBranch == bookOnHold.libraryBranchId
+            availableBook.currentBranch == bookOnHold.libraryBranchId
             availableBook.version == bookOnHold.version
     }
 

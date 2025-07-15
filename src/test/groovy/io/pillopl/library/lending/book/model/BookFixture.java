@@ -2,6 +2,10 @@ package io.pillopl.library.lending.book.model;
 
 import io.pillopl.library.catalogue.BookId;
 import io.pillopl.library.commons.aggregates.Version;
+import io.pillopl.library.lending.book.new_model.Book;
+import io.pillopl.library.lending.book.new_model.AvailableState;
+import io.pillopl.library.lending.book.new_model.OnHoldState;
+import io.pillopl.library.lending.book.new_model.CheckedOutState;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.pillopl.library.lending.patron.model.PatronId;
 
@@ -14,44 +18,68 @@ import static io.pillopl.library.lending.librarybranch.model.LibraryBranchFixtur
 
 public class BookFixture {
 
-    public static BookOnHold bookOnHold(BookId bookId, LibraryBranchId libraryBranchId) {
-        return new BookOnHold(new BookInformation(bookId, Circulating), libraryBranchId, anyPatronId(), Instant.now(), version0());
+    public static Book bookOnHold(BookId bookId, LibraryBranchId libraryBranchId) {
+        OnHoldState state = new OnHoldState(null, libraryBranchId, anyPatronId(), Instant.now());
+        Book book = new Book(bookId, Circulating, state, version0());
+        state.setBook(book);
+        return book;
     }
 
-    public static AvailableBook circulatingBook() {
-        return new AvailableBook(new BookInformation(anyBookId(), Circulating), anyBranch(), version0());
+    public static Book circulatingBook() {
+        AvailableState state = new AvailableState(null, anyBranch());
+        Book book = new Book(anyBookId(), Circulating, state, version0());
+        state.setBook(book);
+        return book;
     }
 
-    public static BookOnHold bookOnHold() {
-        return new BookOnHold(new BookInformation(anyBookId(), Circulating), anyBranch(), anyPatronId(), Instant.now(), version0());
+    public static Book bookOnHold() {
+        OnHoldState state = new OnHoldState(null, anyBranch(), anyPatronId(), Instant.now());
+        Book book = new Book(anyBookId(), Circulating, state, version0());
+        state.setBook(book);
+        return book;
     }
 
-    public static AvailableBook circulatingAvailableBookAt(LibraryBranchId libraryBranchId) {
-        return new AvailableBook(new BookInformation(anyBookId(), Circulating), libraryBranchId, version0());
+    public static Book circulatingAvailableBookAt(LibraryBranchId libraryBranchId) {
+        AvailableState state = new AvailableState(null, libraryBranchId);
+        Book book = new Book(anyBookId(), Circulating, state, version0());
+        state.setBook(book);
+        return book;
     }
 
-    public static AvailableBook circulatingAvailableBookAt(BookId bookId, LibraryBranchId libraryBranchId) {
-        return new AvailableBook(new BookInformation(bookId, Circulating), libraryBranchId, version0());
+    public static Book circulatingAvailableBookAt(BookId bookId, LibraryBranchId libraryBranchId) {
+        AvailableState state = new AvailableState(null, libraryBranchId);
+        Book book = new Book(bookId, Circulating, state, version0());
+        state.setBook(book);
+        return book;
     }
 
-    public static AvailableBook aBookAt(LibraryBranchId libraryBranchId) {
-        return new AvailableBook(new BookInformation(anyBookId(), Circulating), libraryBranchId, version0());
+    public static Book aBookAt(LibraryBranchId libraryBranchId) {
+        AvailableState state = new AvailableState(null, libraryBranchId);
+        Book book = new Book(anyBookId(), Circulating, state, version0());
+        state.setBook(book);
+        return book;
     }
 
     public static Version version0() {
         return new Version(0);
     }
 
-    public static AvailableBook circulatingAvailableBook() {
+    public static Book circulatingAvailableBook() {
         return circulatingAvailableBookAt(anyBranch());
     }
 
-    public static CheckedOutBook checkedOutBook() {
-        return new CheckedOutBook(new BookInformation(anyBookId(), Circulating), anyBranch(), anyPatronId(), version0());
+    public static Book checkedOutBook() {
+        CheckedOutState state = new CheckedOutState(null, anyBranch(), anyPatronId());
+        Book book = new Book(anyBookId(), Circulating, state, version0());
+        state.setBook(book);
+        return book;
     }
 
-    public static AvailableBook restrictedBook() {
-        return new AvailableBook(new BookInformation(anyBookId(), Restricted), anyBranch(), version0());
+    public static Book restrictedBook() {
+        AvailableState state = new AvailableState(null, anyBranch());
+        Book book = new Book(anyBookId(), Restricted, state, version0());
+        state.setBook(book);
+        return book;
     }
 
     public static BookId anyBookId() {
