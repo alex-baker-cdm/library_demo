@@ -4,7 +4,7 @@ import io.pillopl.library.catalogue.BookId
 import io.pillopl.library.commons.aggregates.AggregateRootIsStale
 import io.pillopl.library.commons.aggregates.Version
 import io.pillopl.library.lending.LendingTestContext
-import io.pillopl.library.lending.book.model.AvailableBook
+import io.pillopl.library.lending.book.new_model.Book as NewBook
 import io.pillopl.library.lending.book.model.Book
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
 import io.pillopl.library.lending.patron.model.HoldDuration
@@ -35,7 +35,7 @@ class OptimisticLockingBookAggregateIT extends Specification {
 
     def 'persistence in real database should work'() {
         given:
-            AvailableBook availableBook = circulatingAvailableBookAt(bookId, libraryBranchId)
+            NewBook availableBook = circulatingAvailableBookAt(bookId, libraryBranchId)
         and:
             bookEntityRepository.save(availableBook)
         and:
@@ -49,7 +49,7 @@ class OptimisticLockingBookAggregateIT extends Specification {
             loadPersistedBook(bookId).version == new Version(1)
     }
 
-    void someoneModifiedBookInTheMeantime(AvailableBook availableBook) {
+    void someoneModifiedBookInTheMeantime(NewBook availableBook) {
         bookEntityRepository.save(availableBook.handle(placedOnHoldBy(anyPatronId())))
     }
 

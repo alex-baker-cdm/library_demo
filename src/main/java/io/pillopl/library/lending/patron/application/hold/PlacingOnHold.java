@@ -1,7 +1,7 @@
 package io.pillopl.library.lending.patron.application.hold;
 
 import io.pillopl.library.commons.commands.Result;
-import io.pillopl.library.lending.book.model.AvailableBook;
+import io.pillopl.library.lending.book.new_model.Book;
 import io.pillopl.library.catalogue.BookId;
 import io.pillopl.library.lending.patron.model.*;
 import io.pillopl.library.lending.patron.model.PatronEvent.BookHoldFailed;
@@ -27,7 +27,7 @@ public class PlacingOnHold {
 
     public Try<Result> placeOnHold(@NonNull PlaceOnHoldCommand command) {
         return Try.of(() -> {
-            AvailableBook availableBook = find(command.getBookId());
+            Book availableBook = find(command.getBookId());
             Patron patron = find(command.getPatronId());
             Either<BookHoldFailed, BookPlacedOnHoldEvents> result = patron.placeOnHold(availableBook, command.getHoldDuration());
             return Match(result).of(
@@ -47,7 +47,7 @@ public class PlacingOnHold {
         return Result.Rejection;
     }
 
-    private AvailableBook find(BookId id) {
+    private Book find(BookId id) {
         return findAvailableBook
                 .findAvailableBookBy(id)
                 .getOrElseThrow(() -> new IllegalArgumentException("Cannot find available book with Id: " + id.getBookId()));

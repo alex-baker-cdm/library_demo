@@ -7,13 +7,19 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 
-@RequiredArgsConstructor
 @Getter
 public class OnHoldState implements BookState {
-    private final Book book;
+    private Book book;
     private final LibraryBranchId holdPlacedAt;
     private final PatronId byPatron;
     private final Instant holdTill;
+
+    public OnHoldState(Book book, LibraryBranchId holdPlacedAt, PatronId byPatron, Instant holdTill) {
+        this.book = book;
+        this.holdPlacedAt = holdPlacedAt;
+        this.byPatron = byPatron;
+        this.holdTill = holdTill;
+    }
 
     @Override
     public BookState placeOnHold(PatronId patronId, LibraryBranchId branchId, Instant holdTill) {
@@ -25,7 +31,9 @@ public class OnHoldState implements BookState {
         if (!patronId.equals(byPatron)) {
             return invalidTransition("Only the patron who placed the hold can check out the book");
         }
-        return new CheckedOutState(book, branchId, patronId);
+        CheckedOutState newState = new CheckedOutState(book, branchId, patronId);
+        newState.setBook(book);
+        return newState;
     }
 
     @Override
@@ -35,15 +43,23 @@ public class OnHoldState implements BookState {
 
     @Override
     public BookState cancelHold() {
-        return new AvailableState(book, holdPlacedAt);
+        AvailableState newState = new AvailableState(book, holdPlacedAt);
+        newState.setBook(book);
+        return newState;
     }
 
     @Override
     public BookState expireHold() {
         if (Instant.now().isAfter(holdTill)) {
-            return new AvailableState(book, holdPlacedAt);
+            AvailableState newState = new AvailableState(book, holdPlacedAt);
+            newState.setBook(book);
+            return newState;
         }
         return this;
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
     }
 
     @Override

@@ -1,8 +1,8 @@
 package io.pillopl.library.lending.patron.model;
 
 
-import io.pillopl.library.lending.book.model.AvailableBook;
-import io.pillopl.library.lending.book.model.BookOnHold;
+import io.pillopl.library.lending.book.new_model.Book;
+import io.pillopl.library.lending.book.new_model.Book;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.pillopl.library.lending.patron.model.PatronEvent.*;
 import io.vavr.collection.List;
@@ -41,37 +41,37 @@ public class Patron {
     @NonNull
     private final PatronHolds patronHolds;
 
-    public Either<BookHoldFailed, BookPlacedOnHoldEvents> placeOnHold(AvailableBook book) {
+    public Either<BookHoldFailed, BookPlacedOnHoldEvents> placeOnHold(Book book) {
         return placeOnHold(book, HoldDuration.openEnded());
     }
 
-    public Either<BookHoldFailed, BookPlacedOnHoldEvents> placeOnHold(AvailableBook aBook, HoldDuration duration) {
+    public Either<BookHoldFailed, BookPlacedOnHoldEvents> placeOnHold(Book aBook, HoldDuration duration) {
         Option<Rejection> rejection = patronCanHold(aBook, duration);
         if (rejection.isEmpty()) {
-            BookPlacedOnHold bookPlacedOnHold = bookPlacedOnHoldNow(aBook.getBookId(), aBook.type(), aBook.getLibraryBranch(), patron.getPatronId(), duration);
+            BookPlacedOnHold bookPlacedOnHold = bookPlacedOnHoldNow(aBook.getBookId(), aBook.getBookType(), aBook.getCurrentBranch(), patron.getPatronId(), duration);
             if (patronHolds.maximumHoldsAfterHolding(aBook)) {
                 return announceSuccess(events(bookPlacedOnHold, MaximumNumberOhHoldsReached.now(patron, MAX_NUMBER_OF_HOLDS)));
             }
             return announceSuccess(events(bookPlacedOnHold));
         }
-        return announceFailure(bookHoldFailedNow(rejection.get(), aBook.getBookId(), aBook.getLibraryBranch(), patron));
+        return announceFailure(bookHoldFailedNow(rejection.get(), aBook.getBookId(), aBook.getCurrentBranch(), patron));
     }
 
-    public Either<BookHoldCancelingFailed, BookHoldCanceled> cancelHold(BookOnHold book) {
+    public Either<BookHoldCancelingFailed, BookHoldCanceled> cancelHold(Book book) {
         if (patronHolds.a(book)) {
-            return announceSuccess(holdCanceledNow(book.getBookId(), book.getHoldPlacedAt(), patron.getPatronId()));
+            return announceSuccess(holdCanceledNow(book.getBookId(), book.getCurrentBranch(), patron.getPatronId()));
         }
-        return announceFailure(holdCancelingFailedNow(book.getBookId(), book.getHoldPlacedAt(), patron.getPatronId()));
+        return announceFailure(holdCancelingFailedNow(book.getBookId(), book.getCurrentBranch(), patron.getPatronId()));
     }
 
-    public Either<BookCheckingOutFailed, BookCheckedOut> checkOut(BookOnHold book, CheckoutDuration duration) {
+    public Either<BookCheckingOutFailed, BookCheckedOut> checkOut(Book book, CheckoutDuration duration) {
         if (patronHolds.a(book)) {
-            return announceSuccess(bookCheckedOutNow(book.getBookId(), book.type(), book.getHoldPlacedAt(), patron.getPatronId(), duration));
+            return announceSuccess(bookCheckedOutNow(book.getBookId(), book.getBookType(), book.getCurrentBranch(), patron.getPatronId(), duration));
         }
         return announceFailure(bookCheckingOutFailedNow(withReason("book is not on hold by patron"), book.getBookId(), book.getHoldPlacedAt(), patron));
     }
 
-    private Option<Rejection> patronCanHold(AvailableBook aBook, HoldDuration forDuration) {
+    private Option<Rejection> patronCanHold(Book aBook, HoldDuration forDuration) {
         return placingOnHoldPolicies
                 .toStream()
                 .map(policy -> policy.apply(aBook, this, forDuration))

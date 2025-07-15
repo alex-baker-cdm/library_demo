@@ -2,7 +2,7 @@ package io.pillopl.library.lending.patron.application.hold;
 
 import io.pillopl.library.commons.commands.Result;
 import io.pillopl.library.catalogue.BookId;
-import io.pillopl.library.lending.book.model.BookOnHold;
+import io.pillopl.library.lending.book.new_model.Book;
 import io.pillopl.library.lending.patron.model.Patron;
 import io.pillopl.library.lending.patron.model.PatronEvent.BookHoldCanceled;
 import io.pillopl.library.lending.patron.model.PatronEvent.BookHoldCancelingFailed;
@@ -27,7 +27,7 @@ public class CancelingHold {
 
     public Try<Result> cancelHold(@NonNull CancelHoldCommand command) {
         return Try.of(() -> {
-            BookOnHold bookOnHold = find(command.getBookId(), command.getPatronId());
+            Book bookOnHold = find(command.getBookId(), command.getPatronId());
             Patron patron = find(command.getPatronId());
             Either<BookHoldCancelingFailed, BookHoldCanceled> result = patron.cancelHold(bookOnHold);
             return Match(result).of(
@@ -47,7 +47,7 @@ public class CancelingHold {
         return Rejection;
     }
 
-    private BookOnHold find(BookId bookId, PatronId patronId) {
+    private Book find(BookId bookId, PatronId patronId) {
         return findBookOnHold
                 .findBookOnHold(bookId, patronId)
                 .getOrElseThrow(() -> new IllegalArgumentException("Cannot find book on hold with Id: " + bookId.getBookId()));

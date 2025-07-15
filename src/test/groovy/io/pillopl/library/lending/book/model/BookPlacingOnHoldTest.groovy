@@ -3,6 +3,7 @@ package io.pillopl.library.lending.book.model
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
 import io.pillopl.library.lending.patron.model.PatronEvent
 import io.pillopl.library.lending.patron.model.PatronId
+import io.pillopl.library.lending.book.new_model.Book
 import spock.lang.Specification
 
 import java.time.Instant
@@ -32,13 +33,13 @@ class BookPlacingOnHoldTest extends Specification {
             PatronEvent.BookPlacedOnHold bookPlacedOnHoldEvent = the availableBook isPlacedOnHoldBy aPatron at aBranch from now till oneHourLater
 
         when:
-            BookOnHold onHold = the availableBook reactsTo bookPlacedOnHoldEvent
+            Book onHold = the availableBook reactsTo bookPlacedOnHoldEvent
 
         then:
             onHold.bookId == availableBook.bookId
-            onHold.byPatron == aPatron
-            onHold.holdTill == oneHourLater
-            onHold.holdPlacedAt == aBranch
+            onHold.getCurrentPatron() == aPatron
+            onHold.getCurrentState() == "ON_HOLD"
+            onHold.getCurrentBranch() == aBranch
             onHold.version == availableBook.version
     }
 }

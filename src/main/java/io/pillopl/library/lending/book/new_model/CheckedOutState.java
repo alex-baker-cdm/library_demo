@@ -7,12 +7,17 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 
-@RequiredArgsConstructor
 @Getter
 public class CheckedOutState implements BookState {
-    private final Book book;
+    private Book book;
     private final LibraryBranchId checkedOutAt;
     private final PatronId byPatron;
+
+    public CheckedOutState(Book book, LibraryBranchId checkedOutAt, PatronId byPatron) {
+        this.book = book;
+        this.checkedOutAt = checkedOutAt;
+        this.byPatron = byPatron;
+    }
 
     @Override
     public BookState placeOnHold(PatronId patronId, LibraryBranchId branchId, Instant holdTill) {
@@ -26,7 +31,13 @@ public class CheckedOutState implements BookState {
 
     @Override
     public BookState returnBook(LibraryBranchId branchId) {
-        return new AvailableState(book, branchId);
+        AvailableState newState = new AvailableState(book, branchId);
+        newState.setBook(book);
+        return newState;
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
     }
 
     @Override

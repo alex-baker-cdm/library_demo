@@ -1,7 +1,7 @@
 package io.pillopl.library.lending.patron.model;
 
 import io.pillopl.library.catalogue.BookId;
-import io.pillopl.library.lending.book.model.BookOnHold;
+import io.pillopl.library.lending.book.new_model.Book;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.vavr.collection.List;
 
@@ -83,8 +83,8 @@ public class PatronFixture {
                 patronHolds);
     }
 
-    public static Patron regularPatronWith(BookOnHold bookOnHold, PatronId patronId) {
-        PatronHolds patronHolds = new PatronHolds(Collections.singleton(new Hold(bookOnHold.getBookId(), bookOnHold.getHoldPlacedAt())));
+    public static Patron regularPatronWith(Book bookOnHold, PatronId patronId) {
+        PatronHolds patronHolds = new PatronHolds(Collections.singleton(new Hold(bookOnHold.getBookId(), bookOnHold.getCurrentBranch())));
         return new Patron(
                 patronInformation(patronId, Regular),
                 allCurrentPolicies(),
@@ -148,8 +148,8 @@ public class PatronFixture {
     }
 
 
-    public static Patron regularPatronWithHold(BookOnHold bookOnHold) {
-        return regularPatronWith(new Hold(bookOnHold.getBookId(), bookOnHold.getHoldPlacedAt()));
+    public static Patron regularPatronWithHold(Book bookOnHold) {
+        return regularPatronWith(new Hold(bookOnHold.getBookId(), bookOnHold.getCurrentBranch()));
     }
 
 

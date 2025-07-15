@@ -54,19 +54,36 @@ class BookDSL {
     BookDSL placedOnHoldBy(PatronId aPatron) {
         this.patronId = aPatron
         this.bookProvider = { ->
-            new BookOnHold(new BookInformation(bookId, bookType), libraryBranchId, patronId, Instant.now(), version0())
+            import io.pillopl.library.lending.book.new_model.Book
+            import io.pillopl.library.lending.book.new_model.OnHoldState
+            OnHoldState state = new OnHoldState(null, libraryBranchId, patronId, Instant.now())
+            Book book = new Book(bookId, bookType, state, version0())
+            state.setBook(book)
+            return book
         }
         return this
     }
 
     BookDSL stillAvailable() {
-        bookProvider = { -> new AvailableBook(new BookInformation(bookId, bookType), libraryBranchId, version0()) }
+        bookProvider = { -> 
+            import io.pillopl.library.lending.book.new_model.Book
+            import io.pillopl.library.lending.book.new_model.AvailableState
+            AvailableState state = new AvailableState(null, libraryBranchId)
+            Book book = new Book(bookId, bookType, state, version0())
+            state.setBook(book)
+            return book
+        }
         return this
     }
 
     BookDSL checkedOutBy(PatronId aPatron) {
         bookProvider = { ->
-            new CheckedOutBook(new BookInformation(bookId, bookType), libraryBranchId, aPatron, version0())
+            import io.pillopl.library.lending.book.new_model.Book
+            import io.pillopl.library.lending.book.new_model.CheckedOutState
+            CheckedOutState state = new CheckedOutState(null, libraryBranchId, aPatron)
+            Book book = new Book(bookId, bookType, state, version0())
+            state.setBook(book)
+            return book
         }
         return this
     }

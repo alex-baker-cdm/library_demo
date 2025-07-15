@@ -1,9 +1,9 @@
 package io.pillopl.library.lending.eventspropagation
 
 import io.pillopl.library.lending.LendingTestContext
-import io.pillopl.library.lending.book.model.AvailableBook
+import io.pillopl.library.lending.book.new_model.Book
 import io.pillopl.library.lending.book.model.BookFixture
-import io.pillopl.library.lending.book.model.BookOnHold
+import io.pillopl.library.lending.book.new_model.Book
 import io.pillopl.library.lending.book.model.BookRepository
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
 import io.pillopl.library.lending.patron.model.HoldDuration
@@ -33,7 +33,7 @@ class StrongConsistencyBetweenAggregatesAndReadModelsIT extends Specification {
 
     PatronId patronId = anyPatronId()
     LibraryBranchId libraryBranchId = anyBranch()
-    AvailableBook book = BookFixture.circulatingBook()
+    Book book = BookFixture.circulatingBook()
 
     @Autowired
     Patrons patronRepo
@@ -70,7 +70,7 @@ class StrongConsistencyBetweenAggregatesAndReadModelsIT extends Specification {
                 .get("COUNT(*)") == 1
     }
 
-    BookPlacedOnHoldEvents placedOnHold(AvailableBook book) {
+    BookPlacedOnHoldEvents placedOnHold(Book book) {
         return events(bookPlacedOnHoldNow(
                 book.bookId,
                 book.type(),

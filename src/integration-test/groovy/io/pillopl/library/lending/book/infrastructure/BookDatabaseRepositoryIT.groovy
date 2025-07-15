@@ -2,7 +2,7 @@ package io.pillopl.library.lending.book.infrastructure
 
 import io.pillopl.library.catalogue.BookId
 import io.pillopl.library.lending.LendingTestContext
-import io.pillopl.library.lending.book.model.AvailableBook
+import io.pillopl.library.lending.book.new_model.Book as NewBook
 import io.pillopl.library.lending.book.model.Book
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
 import io.pillopl.library.lending.patron.model.PatronId
@@ -28,11 +28,11 @@ class BookDatabaseRepositoryIT extends Specification {
 
     def 'persistence in real database should work'() {
         given:
-            AvailableBook availableBook = circulatingAvailableBookAt(bookId, libraryBranchId)
+            NewBook availableBook = circulatingAvailableBookAt(bookId, libraryBranchId)
         when:
             bookEntityRepository.save(availableBook)
         then:
-            bookIsPersistedAs(AvailableBook.class)
+            bookIsPersistedAs(NewBook.class)
     }
 
     void bookIsPersistedAs(Class<?> clz) {

@@ -1,11 +1,9 @@
 package io.pillopl.library.lending.book.infrastructure
 
 
-import io.pillopl.library.lending.book.model.AvailableBook
 import io.pillopl.library.lending.book.model.Book
 import io.pillopl.library.catalogue.BookId
-import io.pillopl.library.lending.book.model.BookOnHold
-import io.pillopl.library.lending.book.model.CheckedOutBook
+import io.pillopl.library.lending.book.new_model.Book as NewBook
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId
 import io.pillopl.library.lending.patron.model.PatronId
 import io.pillopl.library.lending.book.infrastructure.BookDatabaseEntity.BookState
@@ -36,11 +34,12 @@ class BookEntityToDomainModelMappingTest extends Specification {
         when:
             Book book = entity.toDomainModel()
         and:
-            AvailableBook availableBook = book as AvailableBook
+            NewBook newBook = book as NewBook
         then:
-            availableBook.bookId == bookId
-            availableBook.bookInformation.bookType == Circulating
-            availableBook.libraryBranch == libraryBranchId
+            newBook.bookId == bookId
+            newBook.bookInformation.bookType == Circulating
+            newBook.currentBranch == libraryBranchId
+            newBook.currentState == "AVAILABLE"
 
     }
 
@@ -50,13 +49,13 @@ class BookEntityToDomainModelMappingTest extends Specification {
         when:
             Book book = entity.toDomainModel()
         and:
-            BookOnHold bookOnHold = book as BookOnHold
+            NewBook newBook = book as NewBook
         then:
-            bookOnHold.bookId == bookId
-            bookOnHold.bookInformation.bookType == Circulating
-            bookOnHold.holdPlacedAt == anotherBranchId
-            bookOnHold.byPatron == patronId
-            bookOnHold.holdTill == holdTill
+            newBook.bookId == bookId
+            newBook.bookInformation.bookType == Circulating
+            newBook.currentBranch == anotherBranchId
+            newBook.currentPatron == patronId
+            newBook.currentState == "ON_HOLD"
     }
 
     def 'should map to checked out book'() {
@@ -65,12 +64,13 @@ class BookEntityToDomainModelMappingTest extends Specification {
         when:
             Book book = entity.toDomainModel()
         and:
-            CheckedOutBook checkedOutBook = book as CheckedOutBook
+            NewBook newBook = book as NewBook
         then:
-            checkedOutBook.bookId == bookId
-            checkedOutBook.bookInformation.bookType == Circulating
-            checkedOutBook.checkedOutAt == yetAnotherBranchId
-            checkedOutBook.byPatron == anotherPatronId
+            newBook.bookId == bookId
+            newBook.bookInformation.bookType == Circulating
+            newBook.currentBranch == yetAnotherBranchId
+            newBook.currentPatron == anotherPatronId
+            newBook.currentState == "CHECKED_OUT"
     }
 
     BookDatabaseEntity bookEntity(BookState state) {

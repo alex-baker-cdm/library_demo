@@ -1,6 +1,6 @@
 package io.pillopl.library.lending.patron.model
 
-import io.pillopl.library.lending.book.model.AvailableBook
+import io.pillopl.library.lending.book.new_model.Book
 import io.vavr.control.Either
 import spock.lang.Specification
 
@@ -23,7 +23,7 @@ class PatronRequestingCloseEndedHoldTest extends Specification {
 
     def 'any patron can request close ended hold'() {
         given:
-            AvailableBook aBook = circulatingAvailableBook()
+            Book aBook = circulatingAvailableBook()
         when:
             Either<BookHoldFailed, BookPlacedOnHoldEvents> hold = patron.placeOnHold(aBook, HoldDuration.closeEnded(from, NumberOfDays.of(3)))
         then:
@@ -44,7 +44,7 @@ class PatronRequestingCloseEndedHoldTest extends Specification {
 
     def 'patron cannot hold a book for 0 or negative amount of days'() {
         given:
-            AvailableBook aBook = circulatingAvailableBook()
+            Book aBook = circulatingAvailableBook()
         and:
             Patron patron = regularPatron()
         when:

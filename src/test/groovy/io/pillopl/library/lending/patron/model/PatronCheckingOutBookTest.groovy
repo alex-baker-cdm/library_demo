@@ -1,6 +1,6 @@
 package io.pillopl.library.lending.patron.model
 
-import io.pillopl.library.lending.book.model.BookOnHold
+import io.pillopl.library.lending.book.new_model.Book
 import io.vavr.control.Either
 import spock.lang.Specification
 
@@ -48,7 +48,7 @@ class PatronCheckingOutBookTest extends Specification {
         and:
             Patron patron = regularPatronWith(onHold)
         and:
-            BookOnHold bookOnHold = bookOnHold(onHold.bookId, onHold.libraryBranchId)
+            Book bookOnHold = bookOnHold(onHold.bookId, onHold.libraryBranchId)
         when:
             Either<BookCheckingOutFailed, BookCheckedOut> checkOut = patron.checkOut(bookOnHold, forNoOfDays(checkoutTime, checkoutDays))
         then:

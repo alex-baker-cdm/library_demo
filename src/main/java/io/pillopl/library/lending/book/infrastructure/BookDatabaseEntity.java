@@ -4,6 +4,8 @@ import io.pillopl.library.catalogue.BookId;
 import io.pillopl.library.catalogue.BookType;
 import io.pillopl.library.commons.aggregates.Version;
 import io.pillopl.library.lending.book.model.*;
+import io.pillopl.library.lending.book.new_model.*;
+import io.pillopl.library.lending.book.new_model.Book;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.pillopl.library.lending.patron.model.PatronId;
 import lombok.Data;
@@ -34,7 +36,7 @@ class BookDatabaseEntity {
     UUID checked_out_by_patron;
     int version;
 
-    Book toDomainModel() {
+    io.pillopl.library.lending.book.model.Book toDomainModel() {
         return Match(book_state).of(
                 Case($(Available), this::toAvailableBook),
                 Case($(OnHold), this::toBookOnHold),
@@ -42,16 +44,27 @@ class BookDatabaseEntity {
         );
     }
 
-    private AvailableBook toAvailableBook() {
-        return new AvailableBook(new BookId(book_id), book_type,  new LibraryBranchId(available_at_branch), new Version(version));
+    private Book toAvailableBook() {
+        AvailableState state = new AvailableState(null, new LibraryBranchId(available_at_branch));
+        Book book = new Book(new BookId(book_id), book_type, state, new Version(version));
+        state.setBook(book);
+        return book;
     }
 
-    private BookOnHold toBookOnHold() {
-        return new BookOnHold(new BookId(book_id), book_type, new LibraryBranchId(on_hold_at_branch), new PatronId(on_hold_by_patron), on_hold_till, new Version(version));
+    private Book toBookOnHold() {
+        OnHoldState state = new OnHoldState(null, new LibraryBranchId(on_hold_at_branch), 
+                new PatronId(on_hold_by_patron), on_hold_till);
+        Book book = new Book(new BookId(book_id), book_type, state, new Version(version));
+        state.setBook(book);
+        return book;
     }
 
-    private CheckedOutBook toCheckedOutBook() {
-        return new CheckedOutBook(new BookId(book_id), book_type,  new LibraryBranchId(checked_out_at_branch), new PatronId(checked_out_by_patron), new Version(version));
+    private Book toCheckedOutBook() {
+        CheckedOutState state = new CheckedOutState(null, new LibraryBranchId(checked_out_at_branch), 
+                new PatronId(checked_out_by_patron));
+        Book book = new Book(new BookId(book_id), book_type, state, new Version(version));
+        state.setBook(book);
+        return book;
     }
 }
 

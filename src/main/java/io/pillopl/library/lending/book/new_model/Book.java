@@ -3,13 +3,14 @@ package io.pillopl.library.lending.book.new_model;
 import io.pillopl.library.catalogue.BookId;
 import io.pillopl.library.catalogue.BookType;
 import io.pillopl.library.commons.aggregates.Version;
+import io.pillopl.library.lending.book.model.BookInformation;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.pillopl.library.lending.patron.model.PatronId;
 import lombok.Getter;
 import java.time.Instant;
 
 @Getter
-public class Book {
+public class Book implements io.pillopl.library.lending.book.model.Book {
     private final BookId bookId;
     private final BookType bookType;
     private BookState state;
@@ -65,5 +66,26 @@ public class Book {
 
     public PatronId getCurrentPatron() {
         return state.getCurrentPatron();
+    }
+
+    @Override
+    public BookInformation getBookInformation() {
+        return new BookInformation(bookId, bookType);
+    }
+
+    public boolean isRestricted() {
+        return bookType.equals(BookType.Restricted);
+    }
+
+    public Book(BookId bookId, BookType bookType, BookState state, Version version) {
+        this.bookId = bookId;
+        this.bookType = bookType;
+        this.state = state;
+        this.version = version;
+    }
+
+    public void setState(BookState newState) {
+        this.state = newState;
+        this.version = new Version(this.version.getVersion() + 1);
     }
 }
