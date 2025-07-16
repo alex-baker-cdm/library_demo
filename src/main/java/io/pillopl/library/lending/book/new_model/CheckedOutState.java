@@ -3,16 +3,31 @@ package io.pillopl.library.lending.book.new_model;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.pillopl.library.lending.patron.model.PatronId;
 import io.pillopl.library.commons.aggregates.Version;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import java.time.Instant;
+import java.util.Objects;
 
-@RequiredArgsConstructor
-@Getter
 public class CheckedOutState implements BookState {
     private final Book book;
     private final LibraryBranchId checkedOutAt;
     private final PatronId byPatron;
+
+    public CheckedOutState(Book book, LibraryBranchId checkedOutAt, PatronId byPatron) {
+        this.book = Objects.requireNonNull(book);
+        this.checkedOutAt = Objects.requireNonNull(checkedOutAt);
+        this.byPatron = Objects.requireNonNull(byPatron);
+    }
+
+    public Book getBook() {
+        return book;
+    }
+
+    public LibraryBranchId getCheckedOutAt() {
+        return checkedOutAt;
+    }
+
+    public PatronId getByPatron() {
+        return byPatron;
+    }
 
     @Override
     public BookState placeOnHold(PatronId patronId, LibraryBranchId branchId, Instant holdTill) {

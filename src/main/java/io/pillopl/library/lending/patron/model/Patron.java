@@ -8,10 +8,8 @@ import io.pillopl.library.lending.patron.model.PatronEvent.*;
 import io.vavr.collection.List;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+
+import java.util.Objects;
 
 import static io.pillopl.library.commons.events.EitherResult.announceFailure;
 import static io.pillopl.library.commons.events.EitherResult.announceSuccess;
@@ -25,21 +23,22 @@ import static io.pillopl.library.lending.patron.model.PatronEvent.BookPlacedOnHo
 import static io.pillopl.library.lending.patron.model.PatronHolds.MAX_NUMBER_OF_HOLDS;
 import static io.pillopl.library.lending.patron.model.Rejection.withReason;
 
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
-@EqualsAndHashCode(of = "patron")
 public class Patron {
 
-    @NonNull
     private final PatronInformation patron;
 
-    @NonNull
     private final List<PlacingOnHoldPolicy> placingOnHoldPolicies;
 
-    @NonNull
     private final OverdueCheckouts overdueCheckouts;
 
-    @NonNull
     private final PatronHolds patronHolds;
+
+    Patron(PatronInformation patron, List<PlacingOnHoldPolicy> placingOnHoldPolicies, OverdueCheckouts overdueCheckouts, PatronHolds patronHolds) {
+        this.patron = Objects.requireNonNull(patron);
+        this.placingOnHoldPolicies = Objects.requireNonNull(placingOnHoldPolicies);
+        this.overdueCheckouts = Objects.requireNonNull(overdueCheckouts);
+        this.patronHolds = Objects.requireNonNull(patronHolds);
+    }
 
     public Either<BookHoldFailed, BookPlacedOnHoldEvents> placeOnHold(AvailableBook book) {
         return placeOnHold(book, HoldDuration.openEnded());

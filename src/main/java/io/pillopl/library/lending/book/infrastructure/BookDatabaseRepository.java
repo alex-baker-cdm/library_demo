@@ -9,8 +9,6 @@ import io.pillopl.library.lending.patron.application.hold.FindBookOnHold;
 import io.pillopl.library.lending.patron.model.PatronId;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -24,10 +22,13 @@ import static io.vavr.Predicates.instanceOf;
 import static io.vavr.control.Option.none;
 import static io.vavr.control.Option.of;
 
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 class BookDatabaseRepository implements BookRepository, FindAvailableBook, FindBookOnHold {
 
     private final JdbcTemplate jdbcTemplate;
+
+    BookDatabaseRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Option<Book> findBy(BookId bookId) {

@@ -1,11 +1,10 @@
 package io.pillopl.library.lending.patron.model;
 
-import lombok.Value;
+import java.util.Objects;
 
-@Value
 public class NumberOfDays {
 
-    int days;
+    private final int days;
 
     private NumberOfDays(int days) {
         if(days <= 0) {
@@ -18,7 +17,31 @@ public class NumberOfDays {
         return new NumberOfDays(days);
     }
 
+    public int getDays() {
+        return days;
+    }
+
     boolean isGreaterThan(int days) {
         return this.days > days;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NumberOfDays that = (NumberOfDays) o;
+        return days == that.days;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(days);
+    }
+
+    @Override
+    public String toString() {
+        return "NumberOfDays{" +
+                "days=" + days +
+                '}';
     }
 }

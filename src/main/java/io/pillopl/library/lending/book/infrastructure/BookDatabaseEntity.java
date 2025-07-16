@@ -6,8 +6,6 @@ import io.pillopl.library.commons.aggregates.Version;
 import io.pillopl.library.lending.book.model.*;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.pillopl.library.lending.patron.model.PatronId;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,8 +13,6 @@ import java.util.UUID;
 import static io.pillopl.library.lending.book.infrastructure.BookDatabaseEntity.BookState.*;
 import static io.vavr.API.*;
 
-@NoArgsConstructor
-@Data
 class BookDatabaseEntity {
 
     enum BookState {

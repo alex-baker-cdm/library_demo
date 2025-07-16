@@ -3,17 +3,37 @@ package io.pillopl.library.lending.book.new_model;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.pillopl.library.lending.patron.model.PatronId;
 import io.pillopl.library.commons.aggregates.Version;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import java.time.Instant;
+import java.util.Objects;
 
-@RequiredArgsConstructor
-@Getter
 public class OnHoldState implements BookState {
     private final Book book;
     private final LibraryBranchId holdPlacedAt;
     private final PatronId byPatron;
     private final Instant holdTill;
+
+    public OnHoldState(Book book, LibraryBranchId holdPlacedAt, PatronId byPatron, Instant holdTill) {
+        this.book = Objects.requireNonNull(book);
+        this.holdPlacedAt = Objects.requireNonNull(holdPlacedAt);
+        this.byPatron = Objects.requireNonNull(byPatron);
+        this.holdTill = Objects.requireNonNull(holdTill);
+    }
+
+    public Book getBook() {
+        return book;
+    }
+
+    public LibraryBranchId getHoldPlacedAt() {
+        return holdPlacedAt;
+    }
+
+    public PatronId getByPatron() {
+        return byPatron;
+    }
+
+    public Instant getHoldTill() {
+        return holdTill;
+    }
 
     @Override
     public BookState placeOnHold(PatronId patronId, LibraryBranchId branchId, Instant holdTill) {

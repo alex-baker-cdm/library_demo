@@ -1,15 +1,10 @@
 package io.pillopl.library.lending.patron.infrastructure;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
 import java.time.Instant;
 import java.util.UUID;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
-@Getter
 class HoldDatabaseEntity {
 
     @Id
@@ -18,6 +13,29 @@ class HoldDatabaseEntity {
     UUID bookId;
     UUID libraryBranchId;
     Instant till;
+
+    HoldDatabaseEntity() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public UUID getPatronId() {
+        return patronId;
+    }
+
+    public UUID getBookId() {
+        return bookId;
+    }
+
+    public UUID getLibraryBranchId() {
+        return libraryBranchId;
+    }
+
+    public Instant getTill() {
+        return till;
+    }
 
     HoldDatabaseEntity(UUID bookId, UUID patronId, UUID libraryBranchId, Instant till) {
         this.bookId = bookId;

@@ -5,15 +5,29 @@ import io.pillopl.library.catalogue.BookType;
 import io.pillopl.library.commons.aggregates.Version;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.pillopl.library.lending.patron.model.PatronId;
-import lombok.Getter;
 import java.time.Instant;
 
-@Getter
 public class Book {
     private final BookId bookId;
     private final BookType bookType;
     private BookState state;
     private Version version;
+
+    public BookId getBookId() {
+        return bookId;
+    }
+
+    public BookType getBookType() {
+        return bookType;
+    }
+
+    public BookState getState() {
+        return state;
+    }
+
+    public Version getVersion() {
+        return version;
+    }
 
     public Book(BookId bookId, BookType bookType, LibraryBranchId branch, Version version) {
         this.bookId = bookId;
