@@ -3,13 +3,17 @@ package io.pillopl.library.lending.book.new_model;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 import io.pillopl.library.lending.patron.model.PatronId;
 import io.pillopl.library.commons.aggregates.Version;
-import lombok.RequiredArgsConstructor;
 import java.time.Instant;
+import java.util.Objects;
 
-@RequiredArgsConstructor
 public class AvailableState implements BookState {
     private final Book book;
     private final LibraryBranchId branch;
+
+    public AvailableState(Book book, LibraryBranchId branch) {
+        this.book = Objects.requireNonNull(book);
+        this.branch = Objects.requireNonNull(branch);
+    }
 
     @Override
     public BookState placeOnHold(PatronId patronId, LibraryBranchId branchId, Instant holdTill) {

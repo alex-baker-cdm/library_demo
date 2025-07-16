@@ -11,7 +11,8 @@ import io.pillopl.library.lending.patron.model.PatronId;
 import io.pillopl.library.lending.patron.model.Patrons;
 import java.util.UUID;
 import javax.sql.DataSource;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +31,9 @@ import static io.pillopl.library.catalogue.BookType.Circulating;
 import static io.pillopl.library.lending.patron.model.PatronType.Regular;
 
 @Configuration
-@Slf4j
 class LendingDatabaseConfig extends AbstractJdbcConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(LendingDatabaseConfig.class);
 
     @Bean
     JdbcTemplate jdbcTemplate() {

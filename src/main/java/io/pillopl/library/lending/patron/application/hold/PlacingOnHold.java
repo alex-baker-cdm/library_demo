@@ -8,9 +8,6 @@ import io.pillopl.library.lending.patron.model.PatronEvent.BookHoldFailed;
 import io.pillopl.library.lending.patron.model.PatronEvent.BookPlacedOnHoldEvents;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
 
 import static io.pillopl.library.commons.commands.Result.Success;
@@ -18,14 +15,17 @@ import static io.vavr.API.*;
 import static io.vavr.Patterns.$Left;
 import static io.vavr.Patterns.$Right;
 
-@AllArgsConstructor
-@Slf4j
 public class PlacingOnHold {
 
     private final FindAvailableBook findAvailableBook;
     private final Patrons patronRepository;
 
-    public Try<Result> placeOnHold(@NonNull PlaceOnHoldCommand command) {
+    public PlacingOnHold(FindAvailableBook findAvailableBook, Patrons patronRepository) {
+        this.findAvailableBook = findAvailableBook;
+        this.patronRepository = patronRepository;
+    }
+
+    public Try<Result> placeOnHold(PlaceOnHoldCommand command) {
         return Try.of(() -> {
             AvailableBook availableBook = find(command.getBookId());
             Patron patron = find(command.getPatronId());
@@ -34,7 +34,7 @@ public class PlacingOnHold {
                     Case($Left($()), this::publishEvents),
                     Case($Right($()), this::publishEvents)
             );
-        }).onFailure(t -> log.error("Failed to place a hold", t));
+        }).onFailure(t -> System.err.println("Failed to place a hold: " + t.getMessage()));
     }
 
     private Result publishEvents(BookPlacedOnHoldEvents placedOnHold) {

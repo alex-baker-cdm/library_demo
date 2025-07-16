@@ -10,8 +10,6 @@ import io.pillopl.library.lending.patron.model.Patrons;
 import io.pillopl.library.lending.patron.model.PatronId;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
 
 import static io.pillopl.library.commons.commands.Result.Rejection;
 import static io.pillopl.library.commons.commands.Result.Success;
@@ -19,13 +17,17 @@ import static io.vavr.API.*;
 import static io.vavr.Patterns.$Left;
 import static io.vavr.Patterns.$Right;
 
-@AllArgsConstructor
 public class CancelingHold {
 
     private final FindBookOnHold findBookOnHold;
     private final Patrons patronRepository;
 
-    public Try<Result> cancelHold(@NonNull CancelHoldCommand command) {
+    public CancelingHold(FindBookOnHold findBookOnHold, Patrons patronRepository) {
+        this.findBookOnHold = findBookOnHold;
+        this.patronRepository = patronRepository;
+    }
+
+    public Try<Result> cancelHold(CancelHoldCommand command) {
         return Try.of(() -> {
             BookOnHold bookOnHold = find(command.getBookId(), command.getPatronId());
             Patron patron = find(command.getPatronId());

@@ -5,13 +5,16 @@ import io.pillopl.library.lending.dailysheet.model.DailySheet;
 import io.pillopl.library.lending.patron.model.PatronEvent;
 import io.pillopl.library.lending.patron.model.Patrons;
 import io.vavr.control.Try;
-import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
 public class ExpiringHolds {
 
     private final DailySheet find;
     private final Patrons patronRepository;
+
+    public ExpiringHolds(DailySheet find, Patrons patronRepository) {
+        this.find = find;
+        this.patronRepository = patronRepository;
+    }
 
     public Try<BatchResult> expireHolds() {
         return Try.of(() ->

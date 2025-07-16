@@ -18,8 +18,7 @@ import io.vavr.control.Try;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Value;
+import java.util.Objects;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.RepresentationModel;
@@ -45,12 +44,17 @@ import static org.springframework.http.ResponseEntity.ok;
 
 @Timed(percentiles = {0.5, 0.75, 0.95, 0.99})
 @RestController
-@AllArgsConstructor
 class PatronProfileController {
 
     private final PatronProfiles patronProfiles;
     private final PlacingOnHold placingOnHold;
     private final CancelingHold cancelingHold;
+
+    public PatronProfileController(PatronProfiles patronProfiles, PlacingOnHold placingOnHold, CancelingHold cancelingHold) {
+        this.patronProfiles = patronProfiles;
+        this.placingOnHold = placingOnHold;
+        this.cancelingHold = cancelingHold;
+    }
 
     @GetMapping("/profiles/{patronId}")
     ResponseEntity<ProfileResource> patronProfile(@PathVariable UUID patronId) {
@@ -139,50 +143,165 @@ class PatronProfileController {
     }
 }
 
-@Value
 class ProfileResource extends RepresentationModel {
 
-    UUID patronId;
+    private final UUID patronId;
 
     ProfileResource(UUID patronId) {
         this.patronId = patronId;
         add(linkTo(methodOn(PatronProfileController.class).findHolds(patronId)).withRel("holds"));
         add(linkTo(methodOn(PatronProfileController.class).findCheckouts(patronId)).withRel("checkouts"));
         add(linkTo(methodOn(PatronProfileController.class).patronProfile(patronId)).withSelfRel());
-
     }
 
+    public UUID getPatronId() {
+        return patronId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProfileResource that = (ProfileResource) o;
+        return Objects.equals(patronId, that.patronId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(patronId);
+    }
+
+    @Override
+    public String toString() {
+        return "ProfileResource{" +
+                "patronId=" + patronId +
+                '}';
+    }
 }
 
-@Value
 class Hold {
 
-    UUID bookId;
-    Instant till;
+    private final UUID bookId;
+    private final Instant till;
 
     Hold(io.pillopl.library.lending.patronprofile.model.Hold hold) {
         this.bookId = hold.getBook().getBookId();
         this.till = hold.getTill();
     }
+
+    public UUID getBookId() {
+        return bookId;
+    }
+
+    public Instant getTill() {
+        return till;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Hold hold = (Hold) o;
+        return Objects.equals(bookId, hold.bookId) && Objects.equals(till, hold.till);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bookId, till);
+    }
+
+    @Override
+    public String toString() {
+        return "Hold{" +
+                "bookId=" + bookId +
+                ", till=" + till +
+                '}';
+    }
 }
 
-@Value
 class Checkout {
 
-    UUID bookId;
-    Instant till;
+    private final UUID bookId;
+    private final Instant till;
 
     Checkout(io.pillopl.library.lending.patronprofile.model.Checkout hold) {
         this.bookId = hold.getBook().getBookId();
         this.till = hold.getTill();
     }
 
+    public UUID getBookId() {
+        return bookId;
+    }
+
+    public Instant getTill() {
+        return till;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Checkout checkout = (Checkout) o;
+        return Objects.equals(bookId, checkout.bookId) && Objects.equals(till, checkout.till);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bookId, till);
+    }
+
+    @Override
+    public String toString() {
+        return "Checkout{" +
+                "bookId=" + bookId +
+                ", till=" + till +
+                '}';
+    }
 }
 
-@Value
-@AllArgsConstructor(onConstructor = @__(@JsonCreator))
 class PlaceHoldRequest {
-    UUID bookId;
-    UUID libraryBranchId;
-    Integer numberOfDays;
+    private final UUID bookId;
+    private final UUID libraryBranchId;
+    private final Integer numberOfDays;
+
+    @JsonCreator
+    public PlaceHoldRequest(UUID bookId, UUID libraryBranchId, Integer numberOfDays) {
+        this.bookId = bookId;
+        this.libraryBranchId = libraryBranchId;
+        this.numberOfDays = numberOfDays;
+    }
+
+    public UUID getBookId() {
+        return bookId;
+    }
+
+    public UUID getLibraryBranchId() {
+        return libraryBranchId;
+    }
+
+    public Integer getNumberOfDays() {
+        return numberOfDays;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlaceHoldRequest that = (PlaceHoldRequest) o;
+        return Objects.equals(bookId, that.bookId) && Objects.equals(libraryBranchId, that.libraryBranchId) && Objects.equals(numberOfDays, that.numberOfDays);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bookId, libraryBranchId, numberOfDays);
+    }
+
+    @Override
+    public String toString() {
+        return "PlaceHoldRequest{" +
+                "bookId=" + bookId +
+                ", libraryBranchId=" + libraryBranchId +
+                ", numberOfDays=" + numberOfDays +
+                '}';
+    }
 }

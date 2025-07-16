@@ -8,8 +8,6 @@ import io.pillopl.library.lending.patron.model.PatronEvent.PatronCreated;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.control.Option;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -23,12 +21,17 @@ import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
 import static java.util.stream.Collectors.*;
 
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 class PatronsDatabaseRepository implements Patrons {
 
     private final PatronEntityRepository patronEntityRepository;
     private final DomainModelMapper domainModelMapper;
     private final DomainEvents domainEvents;
+
+    PatronsDatabaseRepository(PatronEntityRepository patronEntityRepository, DomainModelMapper domainModelMapper, DomainEvents domainEvents) {
+        this.patronEntityRepository = patronEntityRepository;
+        this.domainModelMapper = domainModelMapper;
+        this.domainEvents = domainEvents;
+    }
 
     @Override
     public Option<Patron> findBy(PatronId patronId) {
@@ -68,10 +71,13 @@ interface PatronEntityRepository extends CrudRepository<PatronDatabaseEntity, Lo
 
 }
 
-@AllArgsConstructor
 class DomainModelMapper {
 
     private final PatronFactory patronFactory;
+
+    DomainModelMapper(PatronFactory patronFactory) {
+        this.patronFactory = patronFactory;
+    }
 
     Patron map(PatronDatabaseEntity entity) {
         return patronFactory.create(

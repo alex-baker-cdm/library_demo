@@ -5,13 +5,16 @@ import io.pillopl.library.lending.dailysheet.model.DailySheet;
 import io.pillopl.library.lending.patron.model.PatronEvent.OverdueCheckoutRegistered;
 import io.pillopl.library.lending.patron.model.Patrons;
 import io.vavr.control.Try;
-import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
 public class RegisteringOverdueCheckout {
 
     private final DailySheet find;
     private final Patrons patronRepository;
+
+    public RegisteringOverdueCheckout(DailySheet find, Patrons patronRepository) {
+        this.find = find;
+        this.patronRepository = patronRepository;
+    }
 
     public Try<BatchResult> registerOverdueCheckouts() {
         return Try.of(() ->

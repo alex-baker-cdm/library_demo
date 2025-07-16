@@ -6,7 +6,6 @@ import io.pillopl.library.lending.book.model.*;
 import io.pillopl.library.lending.patron.model.PatronEvent.*;
 import io.pillopl.library.lending.patron.model.PatronId;
 import io.vavr.API;
-import lombok.AllArgsConstructor;
 import org.springframework.context.event.EventListener;
 
 import java.time.Instant;
@@ -15,11 +14,15 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.Predicates.instanceOf;
 
-@AllArgsConstructor
 public class PatronEventsHandler {
 
     private final BookRepository bookRepository;
     private final DomainEvents domainEvents;
+
+    public PatronEventsHandler(BookRepository bookRepository, DomainEvents domainEvents) {
+        this.bookRepository = bookRepository;
+        this.domainEvents = domainEvents;
+    }
 
     @EventListener
     void handle(BookPlacedOnHold bookPlacedOnHold) {

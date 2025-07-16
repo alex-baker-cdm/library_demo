@@ -1,16 +1,9 @@
 package io.pillopl.library.lending.patron.infrastructure;
 
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
 import java.util.UUID;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
-@EqualsAndHashCode
-@Getter
 class OverdueCheckoutDatabaseEntity {
 
     @Id
@@ -29,5 +22,17 @@ class OverdueCheckoutDatabaseEntity {
         return  this.patronId.equals(patronId) &&
                 this.bookId.equals(bookId) &&
                 this.libraryBranchId.equals(libraryBranchId);
+    }
+
+    public UUID getPatronId() {
+        return patronId;
+    }
+
+    public UUID getBookId() {
+        return bookId;
+    }
+
+    public UUID getLibraryBranchId() {
+        return libraryBranchId;
     }
 }

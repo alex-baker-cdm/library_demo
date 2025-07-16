@@ -3,17 +3,19 @@ package io.pillopl.library.catalogue;
 import io.pillopl.library.commons.commands.Result;
 import io.pillopl.library.commons.events.DomainEvents;
 import io.vavr.control.Try;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 
 import static io.pillopl.library.commons.commands.Result.Rejection;
 import static io.pillopl.library.commons.commands.Result.Success;
 
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Catalogue {
 
     private final CatalogueDatabase database;
     private final DomainEvents domainEvents;
+
+    Catalogue(CatalogueDatabase database, DomainEvents domainEvents) {
+        this.database = database;
+        this.domainEvents = domainEvents;
+    }
 
     public Try<Result> addBook(String author, String title, String isbn) {
         return Try.of(() -> {

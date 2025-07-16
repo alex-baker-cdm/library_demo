@@ -1,16 +1,14 @@
 package io.pillopl.library.lending.patron.model;
 
 import io.vavr.control.Option;
-import lombok.Value;
 
 import java.time.Duration;
 import java.time.Instant;
 
-@Value
 public class HoldDuration {
 
-    Instant from;
-    Instant to;
+    private final Instant from;
+    private final Instant to;
 
     private HoldDuration(Instant from, Instant to) {
         if (to != null && to.isBefore(from)) {
@@ -22,6 +20,10 @@ public class HoldDuration {
 
     boolean isOpenEnded() {
         return getTo().isEmpty();
+    }
+
+    public Instant getFrom() {
+        return from;
     }
 
     Option<Instant> getTo() {
@@ -47,6 +49,27 @@ public class HoldDuration {
     public static HoldDuration closeEnded(Instant from, NumberOfDays days) {
         Instant till = from.plus(Duration.ofDays(days.getDays()));
         return new HoldDuration(from, till);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HoldDuration that = (HoldDuration) o;
+        return java.util.Objects.equals(from, that.from) && java.util.Objects.equals(to, that.to);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(from, to);
+    }
+
+    @Override
+    public String toString() {
+        return "HoldDuration{" +
+                "from=" + from +
+                ", to=" + to +
+                '}';
     }
 
 }

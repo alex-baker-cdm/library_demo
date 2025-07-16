@@ -6,8 +6,6 @@ import io.pillopl.library.lending.patron.model.PatronEvent.*;
 import io.pillopl.library.lending.patron.model.PatronId;
 import io.pillopl.library.lending.patron.model.PatronType;
 import io.vavr.API;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
 import java.util.HashSet;
@@ -18,8 +16,10 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.Predicates.instanceOf;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
 class PatronDatabaseEntity {
+
+    PatronDatabaseEntity() {
+    }
 
     @Id
     Long id;
