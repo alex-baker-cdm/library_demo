@@ -1,6 +1,8 @@
 [![CircleCI](https://circleci.com/gh/ddd-by-examples/library.svg?style=svg)](https://circleci.com/gh/ddd-by-examples/library)
 [![Code Coverage](https://codecov.io/gh/ddd-by-examples/library/branch/master/graph/badge.svg)](https://codecov.io/gh/ddd-by-examples/library)
 
+> **Note**: This is a verification test change made by Devin AI to confirm repository access and PR workflow.
+
 # Table of contents
 
 1. [About](#about)
