@@ -7,9 +7,11 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
@@ -19,6 +21,7 @@ import static org.springframework.hateoas.config.EnableHypermediaSupport.Hyperme
 @EnableAutoConfiguration
 @EnableHypermediaSupport(type = HAL_FORMS)
 @ComponentScan
+@Import(H2ConsoleAutoConfiguration.class)
 public class WebConfiguration {
 
     @Bean
