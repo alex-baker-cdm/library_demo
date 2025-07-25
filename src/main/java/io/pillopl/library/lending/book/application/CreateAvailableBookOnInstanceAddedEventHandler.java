@@ -6,7 +6,6 @@ import io.pillopl.library.commons.aggregates.Version;
 import io.pillopl.library.lending.book.model.AvailableBook;
 import io.pillopl.library.lending.book.model.BookRepository;
 import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
-import org.springframework.context.event.EventListener;
 
 import java.util.UUID;
 
@@ -18,7 +17,6 @@ public class CreateAvailableBookOnInstanceAddedEventHandler {
         this.bookRepository = bookRepository;
     }
 
-    @EventListener
     void handle(BookInstanceAddedToCatalogue event) {
         bookRepository.save(new AvailableBook(new BookId(event.getBookId()), event.getType(), ourLibraryBranch(), Version.zero()));
     }
