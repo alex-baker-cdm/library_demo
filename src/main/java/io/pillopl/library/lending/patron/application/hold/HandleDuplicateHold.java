@@ -5,7 +5,6 @@ import io.pillopl.library.lending.book.model.BookDuplicateHoldFound;
 import io.pillopl.library.catalogue.BookId;
 import io.pillopl.library.lending.patron.model.PatronId;
 import io.vavr.control.Try;
-import org.springframework.context.event.EventListener;
 
 import java.time.Clock;
 
@@ -25,7 +24,6 @@ public class HandleDuplicateHold {
         this.clock = clock;
     }
 
-    @EventListener
     public Try<Result> handle(BookDuplicateHoldFound event) {
         return cancelingHold.cancelHold(cancelHoldCommandFrom(event));
     }

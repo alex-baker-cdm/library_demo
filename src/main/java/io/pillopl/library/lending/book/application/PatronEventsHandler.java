@@ -6,7 +6,6 @@ import io.pillopl.library.lending.book.model.*;
 import io.pillopl.library.lending.patron.model.PatronEvent.*;
 import io.pillopl.library.lending.patron.model.PatronId;
 import io.vavr.API;
-import org.springframework.context.event.EventListener;
 
 import java.time.Instant;
 
@@ -24,35 +23,30 @@ public class PatronEventsHandler {
         this.domainEvents = domainEvents;
     }
 
-    @EventListener
     void handle(BookPlacedOnHold bookPlacedOnHold) {
         bookRepository.findBy(new BookId(bookPlacedOnHold.getBookId()))
                 .map(book -> handleBookPlacedOnHold(book, bookPlacedOnHold))
                 .map(this::saveBook);
     }
 
-    @EventListener
     void handle(BookCheckedOut bookCheckedOut) {
         bookRepository.findBy(new BookId(bookCheckedOut.getBookId()))
                 .map(book -> handleBookCheckedOut(book, bookCheckedOut))
                 .map(this::saveBook);
     }
 
-    @EventListener
     void handle(BookHoldExpired holdExpired) {
         bookRepository.findBy(new BookId(holdExpired.getBookId()))
                 .map(book -> handleBookHoldExpired(book, holdExpired))
                 .map(this::saveBook);
     }
 
-    @EventListener
     void handle(BookHoldCanceled holdCanceled) {
         bookRepository.findBy(new BookId(holdCanceled.getBookId()))
                 .map(book -> handleBookHoldCanceled(book,  holdCanceled))
                 .map(this::saveBook);
     }
 
-    @EventListener
     void handle(BookReturned bookReturned) {
         bookRepository.findBy(new BookId(bookReturned.getBookId()))
                 .map(book -> handleBookReturned(book, bookReturned))

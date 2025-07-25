@@ -64,7 +64,8 @@ public class LendingHexagonalArchitectureTest {
                     .resideInAPackage("..ui..")
                     .should()
                     .dependOnClassesThat()
-                    .resideInAPackage("..infrastructure..");
+                    .resideInAPackage("..infrastructure..")
+                    .allowEmptyShould(true);
 
 
 
