@@ -20,7 +20,7 @@ class CreatingAvailableBookForLendingTest extends Specification {
 
     def 'should create new available book for lending when book instance was added to catalogue'() {
         when:
-            handler.handle(new BookInstanceAddedToCatalogue("isbn", BookType.Restricted, bookId.getBookId()))
+            handler.handle(new BookInstanceAddedToCatalogue("9780123456789", BookType.Restricted, bookId.getBookId()))
             Option<Book> book = bookRepository.findBy(bookId)
         then:
             book.isDefined()
