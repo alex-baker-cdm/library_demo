@@ -1,5 +1,9 @@
 package io.pillopl.library.lending.patron.application.hold;
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import io.pillopl.library.commons.commands.Result;
 import io.pillopl.library.lending.book.model.AvailableBook;
 import io.pillopl.library.catalogue.BookId;
@@ -19,22 +23,42 @@ public class PlacingOnHold {
 
     private final FindAvailableBook findAvailableBook;
     private final Patrons patronRepository;
+    private final Tracer tracer;
 
-    public PlacingOnHold(FindAvailableBook findAvailableBook, Patrons patronRepository) {
+    public PlacingOnHold(FindAvailableBook findAvailableBook, Patrons patronRepository, OpenTelemetry openTelemetry) {
         this.findAvailableBook = findAvailableBook;
         this.patronRepository = patronRepository;
+        this.tracer = openTelemetry.getTracer("library-lending");
     }
 
     public Try<Result> placeOnHold(PlaceOnHoldCommand command) {
-        return Try.of(() -> {
-            AvailableBook availableBook = find(command.getBookId());
-            Patron patron = find(command.getPatronId());
-            Either<BookHoldFailed, BookPlacedOnHoldEvents> result = patron.placeOnHold(availableBook, command.getHoldDuration());
-            return Match(result).of(
-                    Case($Left($()), this::publishEvents),
-                    Case($Right($()), this::publishEvents)
-            );
-        }).onFailure(t -> System.err.println("Failed to place a hold: " + t.getMessage()));
+        Span span = tracer.spanBuilder("patron.place_hold")
+                .setAttribute("patron.id", command.getPatronId().getPatronId().toString())
+                .setAttribute("book.id", command.getBookId().getBookId().toString())
+                .setAttribute("library_branch.id", command.getLibraryId().getLibraryBranchId().toString())
+                .startSpan();
+        
+        try (Scope scope = span.makeCurrent()) {
+            return Try.of(() -> {
+                AvailableBook availableBook = find(command.getBookId());
+                Patron patron = find(command.getPatronId());
+                Either<BookHoldFailed, BookPlacedOnHoldEvents> result = patron.placeOnHold(availableBook, command.getHoldDuration());
+                Result finalResult = Match(result).of(
+                        Case($Left($()), this::publishEvents),
+                        Case($Right($()), this::publishEvents)
+                );
+                
+                span.setAttribute("operation.result", finalResult == Result.Success ? "success" : "failure");
+                span.setStatus(io.opentelemetry.api.trace.StatusCode.OK);
+                return finalResult;
+            }).onFailure(t -> {
+                span.setStatus(io.opentelemetry.api.trace.StatusCode.ERROR, t.getMessage());
+                span.recordException(t);
+                System.err.println("Failed to place a hold: " + t.getMessage());
+            });
+        } finally {
+            span.end();
+        }
     }
 
     private Result publishEvents(BookPlacedOnHoldEvents placedOnHold) {

@@ -1,5 +1,6 @@
 package io.pillopl.library.lending.patron.infrastructure;
 
+import io.opentelemetry.api.OpenTelemetry;
 import io.pillopl.library.commons.events.DomainEvents;
 import io.pillopl.library.lending.dailysheet.model.DailySheet;
 import io.pillopl.library.lending.patron.application.checkout.CheckingOutBookOnHold;
@@ -31,8 +32,8 @@ public class PatronConfiguration {
     }
 
     @Bean
-    CancelingHold cancelingHold(FindBookOnHold findBookOnHold, Patrons patronRepository) {
-        return new CancelingHold(findBookOnHold, patronRepository);
+    CancelingHold cancelingHold(FindBookOnHold findBookOnHold, Patrons patronRepository, OpenTelemetry openTelemetry) {
+        return new CancelingHold(findBookOnHold, patronRepository, openTelemetry);
     }
 
     @Bean
@@ -46,8 +47,8 @@ public class PatronConfiguration {
     }
 
     @Bean
-    PlacingOnHold placingOnHold(FindAvailableBook findAvailableBook, Patrons patronRepository) {
-        return new PlacingOnHold(findAvailableBook, patronRepository);
+    PlacingOnHold placingOnHold(FindAvailableBook findAvailableBook, Patrons patronRepository, OpenTelemetry openTelemetry) {
+        return new PlacingOnHold(findAvailableBook, patronRepository, openTelemetry);
     }
 
     @Bean

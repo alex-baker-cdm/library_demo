@@ -1,5 +1,9 @@
 package io.pillopl.library.lending.patron.application.hold;
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import io.pillopl.library.commons.commands.Result;
 import io.pillopl.library.catalogue.BookId;
 import io.pillopl.library.lending.book.model.BookOnHold;
@@ -21,22 +25,40 @@ public class CancelingHold {
 
     private final FindBookOnHold findBookOnHold;
     private final Patrons patronRepository;
+    private final Tracer tracer;
 
-    public CancelingHold(FindBookOnHold findBookOnHold, Patrons patronRepository) {
+    public CancelingHold(FindBookOnHold findBookOnHold, Patrons patronRepository, OpenTelemetry openTelemetry) {
         this.findBookOnHold = findBookOnHold;
         this.patronRepository = patronRepository;
+        this.tracer = openTelemetry.getTracer("library-lending");
     }
 
     public Try<Result> cancelHold(CancelHoldCommand command) {
-        return Try.of(() -> {
-            BookOnHold bookOnHold = find(command.getBookId(), command.getPatronId());
-            Patron patron = find(command.getPatronId());
-            Either<BookHoldCancelingFailed, BookHoldCanceled> result = patron.cancelHold(bookOnHold);
-            return Match(result).of(
-                    Case($Left($()), this::publishEvents),
-                    Case($Right($()), this::publishEvents)
-            );
-        });
+        Span span = tracer.spanBuilder("patron.cancel_hold")
+                .setAttribute("patron.id", command.getPatronId().getPatronId().toString())
+                .setAttribute("book.id", command.getBookId().getBookId().toString())
+                .startSpan();
+        
+        try (Scope scope = span.makeCurrent()) {
+            return Try.of(() -> {
+                BookOnHold bookOnHold = find(command.getBookId(), command.getPatronId());
+                Patron patron = find(command.getPatronId());
+                Either<BookHoldCancelingFailed, BookHoldCanceled> result = patron.cancelHold(bookOnHold);
+                Result finalResult = Match(result).of(
+                        Case($Left($()), this::publishEvents),
+                        Case($Right($()), this::publishEvents)
+                );
+                
+                span.setAttribute("operation.result", finalResult == Result.Success ? "success" : "failure");
+                span.setStatus(io.opentelemetry.api.trace.StatusCode.OK);
+                return finalResult;
+            }).onFailure(t -> {
+                span.setStatus(io.opentelemetry.api.trace.StatusCode.ERROR, t.getMessage());
+                span.recordException(t);
+            });
+        } finally {
+            span.end();
+        }
     }
 
     private Result publishEvents(BookHoldCanceled bookHoldCanceled) {

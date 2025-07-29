@@ -3,3 +3,19 @@ management:
     web:
       exposure:
         include: info, health, metrics, prometheus
+  tracing:
+    sampling:
+      probability: 1.0
+
+otel:
+  service:
+    name: library-management-system
+  exporter:
+    otlp:
+      endpoint: http://localhost:4317
+  traces:
+    exporter: otlp
+  metrics:
+    exporter: none
+  logs:
+    exporter: none
