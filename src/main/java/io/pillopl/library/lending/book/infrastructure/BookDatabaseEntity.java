@@ -38,6 +38,30 @@ class BookDatabaseEntity {
         );
     }
 
+    io.pillopl.library.lending.book.new_model.Book toNewModelBook() {
+        io.pillopl.library.lending.book.new_model.Book book = new io.pillopl.library.lending.book.new_model.Book(
+                new BookId(book_id), 
+                book_type, 
+                new LibraryBranchId(available_at_branch != null ? available_at_branch : 
+                        (on_hold_at_branch != null ? on_hold_at_branch : checked_out_at_branch)), 
+                new Version(version)
+        );
+        
+        Match(book_state).of(
+                Case($(Available), () -> { return book; }),
+                Case($(OnHold), () -> { 
+                    book.placeOnHold(new PatronId(on_hold_by_patron), new LibraryBranchId(on_hold_at_branch), on_hold_till);
+                    return book;
+                }),
+                Case($(CheckedOut), () -> { 
+                    book.checkout(new PatronId(checked_out_by_patron), new LibraryBranchId(checked_out_at_branch));
+                    return book;
+                })
+        );
+        
+        return book;
+    }
+
     private AvailableBook toAvailableBook() {
         return new AvailableBook(new BookId(book_id), book_type,  new LibraryBranchId(available_at_branch), new Version(version));
     }

@@ -22,7 +22,7 @@ import static io.vavr.Predicates.instanceOf;
 import static io.vavr.control.Option.none;
 import static io.vavr.control.Option.of;
 
-class BookDatabaseRepository implements BookRepository, FindAvailableBook, FindBookOnHold {
+class BookDatabaseRepository implements BookRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -130,21 +130,6 @@ class BookDatabaseRepository implements BookRepository, FindAvailableBook, FindB
                 bookId.getBookId(), bookType.toString(), state.toString(), availableAt, onHoldAt, onHoldBy, onHoldTill, checkedOutAt, checkedOutBy);
     }
 
-    @Override
-    public Option<AvailableBook> findAvailableBookBy(BookId bookId) {
-        return Match(findBy(bookId)).of(
-                Case($Some($(instanceOf(AvailableBook.class))), Option::of),
-                Case($(), Option::none)
-        );
-    }
-
-    @Override
-    public Option<BookOnHold> findBookOnHold(BookId bookId, PatronId patronId) {
-            return Match(findBy(bookId)).of(
-                Case($Some($(instanceOf(BookOnHold.class))), Option::of),
-                Case($(), Option::none)
-        );
-    }
 
 }
 
