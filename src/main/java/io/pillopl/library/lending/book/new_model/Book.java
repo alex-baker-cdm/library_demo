@@ -36,7 +36,6 @@ public class Book {
         this.state = new AvailableState(this, branch);
     }
 
-    // State transition methods
     public void placeOnHold(PatronId patronId, LibraryBranchId branchId, Instant holdTill) {
         if (state.canBePutOnHold(patronId)) {
             state = state.placeOnHold(patronId, branchId, holdTill);
@@ -66,6 +65,10 @@ public class Book {
     public void expireHold() {
         state = state.expireHold();
         version = version.next();
+    }
+
+    public void setState(BookState newState) {
+        this.state = newState;
     }
 
     // State information
