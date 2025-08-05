@@ -4,6 +4,7 @@ import io.pillopl.library.commons.events.DomainEvents;
 import io.pillopl.library.lending.book.application.CreateAvailableBookOnInstanceAddedEventHandler;
 import io.pillopl.library.lending.book.application.PatronEventsHandler;
 import io.pillopl.library.lending.book.model.BookRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,7 +23,12 @@ public class BookConfiguration {
     }
 
     @Bean
-    BookDatabaseRepository bookDatabaseRepository(JdbcTemplate jdbcTemplate) {
-        return new BookDatabaseRepository(jdbcTemplate);
+    BookDatabaseRepository bookDatabaseRepository(JdbcTemplate jdbcTemplate, @Value("${library.book.use-new-model:false}") boolean useNewModel) {
+        return new BookDatabaseRepository(jdbcTemplate, useNewModel);
+    }
+
+    @Bean
+    io.pillopl.library.lending.book.new_model.BookRepository newModelBookRepository(BookDatabaseRepository databaseRepository) {
+        return new NewModelBookRepositoryImpl(databaseRepository);
     }
 }

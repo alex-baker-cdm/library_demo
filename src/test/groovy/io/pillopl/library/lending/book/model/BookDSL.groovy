@@ -1,5 +1,7 @@
 package io.pillopl.library.lending.book.model
 
+import io.pillopl.library.lending.book.model.BookAdapter
+
 import io.pillopl.library.catalogue.BookId
 import io.pillopl.library.catalogue.BookType
 import io.pillopl.library.commons.aggregates.Version
@@ -19,6 +21,7 @@ class BookDSL {
     PatronId patronId
     Closure<Book> bookProvider
     Version version = version0()
+    boolean useNewModel = Boolean.parseBoolean(System.getProperty("library.book.use-new-model", "false"))
 
     static BookDSL the(BookDSL book) {
         return book
@@ -39,6 +42,7 @@ class BookDSL {
         this.patronId = from.patronId
         this.bookProvider = from.bookProvider
         this.version = from.version
+        this.useNewModel = from.useNewModel
     }
 
     BookDSL with(BookId id) {
@@ -54,19 +58,41 @@ class BookDSL {
     BookDSL placedOnHoldBy(PatronId aPatron) {
         this.patronId = aPatron
         this.bookProvider = { ->
-            new BookOnHold(new BookInformation(bookId, bookType), libraryBranchId, patronId, Instant.now(), version0())
+            if (useNewModel) {
+                io.pillopl.library.lending.book.new_model.Book book = 
+                    new io.pillopl.library.lending.book.new_model.Book(bookId, bookType, libraryBranchId, version0())
+                book.placeOnHold(patronId, libraryBranchId, Instant.now())
+                return BookAdapter.toOldModel(book)
+            } else {
+                return new BookOnHold(new BookInformation(bookId, bookType), libraryBranchId, patronId, Instant.now(), version0())
+            }
         }
         return this
     }
 
     BookDSL stillAvailable() {
-        bookProvider = { -> new AvailableBook(new BookInformation(bookId, bookType), libraryBranchId, version0()) }
+        bookProvider = { -> 
+            if (useNewModel) {
+                io.pillopl.library.lending.book.new_model.Book book = 
+                    new io.pillopl.library.lending.book.new_model.Book(bookId, bookType, libraryBranchId, version0())
+                return BookAdapter.toOldModel(book)
+            } else {
+                return new AvailableBook(new BookInformation(bookId, bookType), libraryBranchId, version0())
+            }
+        }
         return this
     }
 
     BookDSL checkedOutBy(PatronId aPatron) {
         bookProvider = { ->
-            new CheckedOutBook(new BookInformation(bookId, bookType), libraryBranchId, aPatron, version0())
+            if (useNewModel) {
+                io.pillopl.library.lending.book.new_model.Book book = 
+                    new io.pillopl.library.lending.book.new_model.Book(bookId, bookType, libraryBranchId, version0())
+                book.checkout(aPatron, libraryBranchId)
+                return BookAdapter.toOldModel(book)
+            } else {
+                return new CheckedOutBook(new BookInformation(bookId, bookType), libraryBranchId, aPatron, version0())
+            }
         }
         return this
     }

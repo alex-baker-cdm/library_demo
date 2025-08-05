@@ -38,6 +38,47 @@ class BookDatabaseEntity {
         );
     }
 
+    io.pillopl.library.lending.book.new_model.Book toNewDomainModel() {
+        return Match(book_state).of(
+                Case($(Available), this::toNewAvailableBook),
+                Case($(OnHold), this::toNewBookOnHold),
+                Case($(CheckedOut), this::toNewCheckedOutBook)
+        );
+    }
+
+    private io.pillopl.library.lending.book.new_model.Book toNewAvailableBook() {
+        return new io.pillopl.library.lending.book.new_model.Book(
+                new BookId(book_id), 
+                book_type, 
+                new LibraryBranchId(available_at_branch), 
+                new Version(version)
+        );
+    }
+
+    private io.pillopl.library.lending.book.new_model.Book toNewBookOnHold() {
+        io.pillopl.library.lending.book.new_model.Book book = 
+            new io.pillopl.library.lending.book.new_model.Book(
+                new BookId(book_id), 
+                book_type, 
+                new LibraryBranchId(on_hold_at_branch), 
+                new Version(version)
+            );
+        book.placeOnHold(new PatronId(on_hold_by_patron), new LibraryBranchId(on_hold_at_branch), on_hold_till);
+        return book;
+    }
+
+    private io.pillopl.library.lending.book.new_model.Book toNewCheckedOutBook() {
+        io.pillopl.library.lending.book.new_model.Book book = 
+            new io.pillopl.library.lending.book.new_model.Book(
+                new BookId(book_id), 
+                book_type, 
+                new LibraryBranchId(checked_out_at_branch), 
+                new Version(version)
+            );
+        book.checkout(new PatronId(checked_out_by_patron), new LibraryBranchId(checked_out_at_branch));
+        return book;
+    }
+
     private AvailableBook toAvailableBook() {
         return new AvailableBook(new BookId(book_id), book_type,  new LibraryBranchId(available_at_branch), new Version(version));
     }

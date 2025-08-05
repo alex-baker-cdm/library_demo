@@ -7,6 +7,7 @@ import io.pillopl.library.lending.book.model.*;
 import io.pillopl.library.lending.patron.application.hold.FindAvailableBook;
 import io.pillopl.library.lending.patron.application.hold.FindBookOnHold;
 import io.pillopl.library.lending.patron.model.PatronId;
+import org.springframework.beans.factory.annotation.Value;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -25,15 +26,19 @@ import static io.vavr.control.Option.of;
 class BookDatabaseRepository implements BookRepository, FindAvailableBook, FindBookOnHold {
 
     private final JdbcTemplate jdbcTemplate;
+    private final boolean useNewModel;
 
-    BookDatabaseRepository(JdbcTemplate jdbcTemplate) {
+    BookDatabaseRepository(JdbcTemplate jdbcTemplate, @Value("${library.book.use-new-model:false}") boolean useNewModel) {
         this.jdbcTemplate = jdbcTemplate;
+        this.useNewModel = useNewModel;
     }
 
     @Override
     public Option<Book> findBy(BookId bookId) {
         return findBookById(bookId)
-                .map(BookDatabaseEntity::toDomainModel);
+                .map(entity -> useNewModel ? 
+                    io.pillopl.library.lending.book.model.BookAdapter.toOldModel(entity.toNewDomainModel()) : 
+                    entity.toDomainModel());
     }
 
     private Option<BookDatabaseEntity> findBookById(BookId bookId) {
@@ -44,7 +49,7 @@ class BookDatabaseRepository implements BookRepository, FindAvailableBook, FindB
 
     @Override
     public void save(Book book) {
-        findBy(book.bookId())
+        findBookById(book.bookId())
                 .map(entity -> updateOptimistically(book))
                 .onEmpty(() -> insertNew(book));
     }
