@@ -104,24 +104,24 @@ class BookTitleAuthorISBNTest extends Specification {
             book1.hashCode() != book2.hashCode()
     }
 
-    def "should have different Books with different title"() {
+    def "should have equal Books with same ISBN regardless of different title"() {
         given:
             ISBN isbn = new ISBN("123412341X")
             Author author = new Author("Eric Evans")
             Book book1 = new Book(isbn, new Title("Domain Driven Design"), author)
             Book book2 = new Book(isbn, new Title("Clean Code"), author)
         expect:
-            !book1.equals(book2)
+            book1.equals(book2)
     }
 
-    def "should have different Books with different author"() {
+    def "should have equal Books with same ISBN regardless of different author"() {
         given:
             ISBN isbn = new ISBN("123412341X")
             Title title = new Title("Domain Driven Design")
             Book book1 = new Book(isbn, title, new Author("Eric Evans"))
             Book book2 = new Book(isbn, title, new Author("Robert Martin"))
         expect:
-            !book1.equals(book2)
+            book1.equals(book2)
     }
 
     def "should not be equal to null"() {

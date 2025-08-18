@@ -15,8 +15,8 @@ class BookEqualsHashCodeToStringTest extends Specification {
             BookDSL book1 = aCirculatingBook() with anyBookId() locatedIn anyBranch() stillAvailable()
             BookDSL book2 = aCirculatingBook() with book1.bookId locatedIn anyBranch() stillAvailable()
         when:
-            AvailableBook availableBook1 = book1.book()
-            AvailableBook availableBook2 = book2.book()
+            AvailableBook availableBook1 = book1.bookProvider()
+            AvailableBook availableBook2 = book2.bookProvider()
         then:
             availableBook1.equals(availableBook2)
             availableBook1.hashCode() == availableBook2.hashCode()
@@ -27,8 +27,8 @@ class BookEqualsHashCodeToStringTest extends Specification {
             BookDSL book1 = aCirculatingBook() with anyBookId() locatedIn anyBranch() stillAvailable()
             BookDSL book2 = aCirculatingBook() with anyBookId() locatedIn anyBranch() stillAvailable()
         when:
-            AvailableBook availableBook1 = book1.book()
-            AvailableBook availableBook2 = book2.book()
+            AvailableBook availableBook1 = book1.bookProvider()
+            AvailableBook availableBook2 = book2.bookProvider()
         then:
             !availableBook1.equals(availableBook2)
     }
@@ -37,7 +37,7 @@ class BookEqualsHashCodeToStringTest extends Specification {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() stillAvailable()
         when:
-            AvailableBook availableBook = book.book()
+            AvailableBook availableBook = book.bookProvider()
         then:
             !availableBook.equals(null)
     }
@@ -46,7 +46,7 @@ class BookEqualsHashCodeToStringTest extends Specification {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() stillAvailable()
         when:
-            AvailableBook availableBook = book.book()
+            AvailableBook availableBook = book.bookProvider()
         then:
             !availableBook.equals("not a book")
     }
@@ -55,7 +55,7 @@ class BookEqualsHashCodeToStringTest extends Specification {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() stillAvailable()
         when:
-            AvailableBook availableBook = book.book()
+            AvailableBook availableBook = book.bookProvider()
             String result = availableBook.toString()
         then:
             result.contains("AvailableBook{")
@@ -68,8 +68,8 @@ class BookEqualsHashCodeToStringTest extends Specification {
             BookDSL book1 = aCirculatingBook() with anyBookId() locatedIn anyBranch() placedOnHoldBy anyPatron()
             BookDSL book2 = aCirculatingBook() with book1.bookId locatedIn anyBranch() placedOnHoldBy anyPatron()
         when:
-            BookOnHold bookOnHold1 = book1.book()
-            BookOnHold bookOnHold2 = book2.book()
+            BookOnHold bookOnHold1 = book1.bookProvider()
+            BookOnHold bookOnHold2 = book2.bookProvider()
         then:
             bookOnHold1.equals(bookOnHold2)
             bookOnHold1.hashCode() == bookOnHold2.hashCode()
@@ -80,8 +80,8 @@ class BookEqualsHashCodeToStringTest extends Specification {
             BookDSL book1 = aCirculatingBook() with anyBookId() locatedIn anyBranch() placedOnHoldBy anyPatron()
             BookDSL book2 = aCirculatingBook() with anyBookId() locatedIn anyBranch() placedOnHoldBy anyPatron()
         when:
-            BookOnHold bookOnHold1 = book1.book()
-            BookOnHold bookOnHold2 = book2.book()
+            BookOnHold bookOnHold1 = book1.bookProvider()
+            BookOnHold bookOnHold2 = book2.bookProvider()
         then:
             !bookOnHold1.equals(bookOnHold2)
     }
@@ -90,7 +90,7 @@ class BookEqualsHashCodeToStringTest extends Specification {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() placedOnHoldBy anyPatron()
         when:
-            BookOnHold bookOnHold = book.book()
+            BookOnHold bookOnHold = book.bookProvider()
             String result = bookOnHold.toString()
         then:
             result.contains("BookOnHold{")
@@ -103,8 +103,8 @@ class BookEqualsHashCodeToStringTest extends Specification {
             BookDSL book1 = aCirculatingBook() with anyBookId() locatedIn anyBranch() checkedOutBy anyPatron()
             BookDSL book2 = aCirculatingBook() with book1.bookId locatedIn anyBranch() checkedOutBy anyPatron()
         when:
-            CheckedOutBook checkedOutBook1 = book1.book()
-            CheckedOutBook checkedOutBook2 = book2.book()
+            CheckedOutBook checkedOutBook1 = book1.bookProvider()
+            CheckedOutBook checkedOutBook2 = book2.bookProvider()
         then:
             checkedOutBook1.equals(checkedOutBook2)
             checkedOutBook1.hashCode() == checkedOutBook2.hashCode()
@@ -115,8 +115,8 @@ class BookEqualsHashCodeToStringTest extends Specification {
             BookDSL book1 = aCirculatingBook() with anyBookId() locatedIn anyBranch() checkedOutBy anyPatron()
             BookDSL book2 = aCirculatingBook() with anyBookId() locatedIn anyBranch() checkedOutBy anyPatron()
         when:
-            CheckedOutBook checkedOutBook1 = book1.book()
-            CheckedOutBook checkedOutBook2 = book2.book()
+            CheckedOutBook checkedOutBook1 = book1.bookProvider()
+            CheckedOutBook checkedOutBook2 = book2.bookProvider()
         then:
             !checkedOutBook1.equals(checkedOutBook2)
     }
@@ -125,7 +125,7 @@ class BookEqualsHashCodeToStringTest extends Specification {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() checkedOutBy anyPatron()
         when:
-            CheckedOutBook checkedOutBook = book.book()
+            CheckedOutBook checkedOutBook = book.bookProvider()
             String result = checkedOutBook.toString()
         then:
             result.contains("CheckedOutBook{")

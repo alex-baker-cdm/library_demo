@@ -10,14 +10,13 @@ import static io.pillopl.library.lending.book.model.BookFixture.anyBookId
 import static io.pillopl.library.lending.librarybranch.model.LibraryBranchFixture.anyBranch
 import static io.pillopl.library.lending.patron.model.PatronFixture.anyPatron
 
-class BookMethodsTest extends Specification {
+class BookMethodsSpec extends Specification {
 
     def "AvailableBook should return true for isRestricted when book type is Restricted"() {
         given:
-            BookDSL restrictedBook = aRestrictedBook() with anyBookId() locatedIn anyBranch() stillAvailable()
-        when:
-            AvailableBook availableBook = restrictedBook.book()
-        then:
+            BookInformation restrictedBookInfo = new BookInformation(anyBookId(), BookType.Restricted)
+            AvailableBook availableBook = new AvailableBook(restrictedBookInfo, anyBranch(), version0())
+        expect:
             availableBook.isRestricted()
     }
 
@@ -25,7 +24,7 @@ class BookMethodsTest extends Specification {
         given:
             BookDSL circulatingBook = aCirculatingBook() with anyBookId() locatedIn anyBranch() stillAvailable()
         when:
-            AvailableBook availableBook = circulatingBook.book()
+            AvailableBook availableBook = circulatingBook.bookProvider()
         then:
             !availableBook.isRestricted()
     }
@@ -35,7 +34,7 @@ class BookMethodsTest extends Specification {
             PatronId patron = anyPatron()
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() placedOnHoldBy patron
         when:
-            BookOnHold bookOnHold = book.book()
+            BookOnHold bookOnHold = book.bookProvider()
         then:
             bookOnHold.by(patron)
     }
@@ -46,7 +45,7 @@ class BookMethodsTest extends Specification {
             PatronId patron2 = anyPatron()
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() placedOnHoldBy patron1
         when:
-            BookOnHold bookOnHold = book.book()
+            BookOnHold bookOnHold = book.bookProvider()
         then:
             !bookOnHold.by(patron2)
     }
@@ -55,53 +54,53 @@ class BookMethodsTest extends Specification {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() stillAvailable()
         when:
-            AvailableBook availableBook = book.book()
+            AvailableBook availableBook = book.bookProvider()
         then:
-            availableBook.bookId() == book.bookId
+            availableBook.getBookId() == book.bookId
     }
 
     def "AvailableBook should implement Book interface type method"() {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() stillAvailable()
         when:
-            AvailableBook availableBook = book.book()
+            AvailableBook availableBook = book.bookProvider()
         then:
-            availableBook.type() == BookType.Circulating
+            availableBook.getBookInformation().getBookType() == BookType.Circulating
     }
 
     def "BookOnHold should implement Book interface bookId method"() {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() placedOnHoldBy anyPatron()
         when:
-            BookOnHold bookOnHold = book.book()
+            BookOnHold bookOnHold = book.bookProvider()
         then:
-            bookOnHold.bookId() == book.bookId
+            bookOnHold.getBookId() == book.bookId
     }
 
     def "BookOnHold should implement Book interface type method"() {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() placedOnHoldBy anyPatron()
         when:
-            BookOnHold bookOnHold = book.book()
+            BookOnHold bookOnHold = book.bookProvider()
         then:
-            bookOnHold.type() == BookType.Circulating
+            bookOnHold.getBookInformation().getBookType() == BookType.Circulating
     }
 
     def "CheckedOutBook should implement Book interface bookId method"() {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() checkedOutBy anyPatron()
         when:
-            CheckedOutBook checkedOutBook = book.book()
+            CheckedOutBook checkedOutBook = book.bookProvider()
         then:
-            checkedOutBook.bookId() == book.bookId
+            checkedOutBook.getBookId() == book.bookId
     }
 
     def "CheckedOutBook should implement Book interface type method"() {
         given:
             BookDSL book = aCirculatingBook() with anyBookId() locatedIn anyBranch() checkedOutBy anyPatron()
         when:
-            CheckedOutBook checkedOutBook = book.book()
+            CheckedOutBook checkedOutBook = book.bookProvider()
         then:
-            checkedOutBook.type() == BookType.Circulating
+            checkedOutBook.getBookInformation().getBookType() == BookType.Circulating
     }
 }
