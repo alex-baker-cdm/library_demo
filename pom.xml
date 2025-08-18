@@ -188,8 +188,8 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>compileTests</goal>
                             <goal>addTestSources</goal>
+                            <goal>compileTests</goal>
                         </goals>
                     </execution>
                 </executions>
