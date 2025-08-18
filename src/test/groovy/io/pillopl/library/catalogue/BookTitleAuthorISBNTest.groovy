@@ -67,6 +67,88 @@ class BookTitleAuthorISBNTest extends Specification {
         then:
             thrown(IllegalArgumentException)
     }
+
+    def "should create Book with ISBN, Title and Author"() {
+        given:
+            ISBN isbn = new ISBN("123412341X")
+            Title title = new Title("Domain Driven Design")
+            Author author = new Author("Eric Evans")
+        when:
+            Book book = new Book(isbn, title, author)
+        then:
+            book.getBookIsbn() == isbn
+            book.getTitle() == title
+            book.getAuthor() == author
+    }
+
+    def "should have equal Books with same ISBN, title and author"() {
+        given:
+            ISBN isbn = new ISBN("123412341X")
+            Title title = new Title("Domain Driven Design")
+            Author author = new Author("Eric Evans")
+            Book book1 = new Book(isbn, title, author)
+            Book book2 = new Book(isbn, title, author)
+        expect:
+            book1.equals(book2)
+            book1.hashCode() == book2.hashCode()
+    }
+
+    def "should have different Books with different ISBN"() {
+        given:
+            Title title = new Title("Domain Driven Design")
+            Author author = new Author("Eric Evans")
+            Book book1 = new Book(new ISBN("123412341X"), title, author)
+            Book book2 = new Book(new ISBN("0987654321"), title, author)
+        expect:
+            !book1.equals(book2)
+            book1.hashCode() != book2.hashCode()
+    }
+
+    def "should have different Books with different title"() {
+        given:
+            ISBN isbn = new ISBN("123412341X")
+            Author author = new Author("Eric Evans")
+            Book book1 = new Book(isbn, new Title("Domain Driven Design"), author)
+            Book book2 = new Book(isbn, new Title("Clean Code"), author)
+        expect:
+            !book1.equals(book2)
+    }
+
+    def "should have different Books with different author"() {
+        given:
+            ISBN isbn = new ISBN("123412341X")
+            Title title = new Title("Domain Driven Design")
+            Book book1 = new Book(isbn, title, new Author("Eric Evans"))
+            Book book2 = new Book(isbn, title, new Author("Robert Martin"))
+        expect:
+            !book1.equals(book2)
+    }
+
+    def "should not be equal to null"() {
+        given:
+            Book book = new Book(new ISBN("123412341X"), new Title("Title"), new Author("Author"))
+        expect:
+            !book.equals(null)
+    }
+
+    def "should not be equal to different class"() {
+        given:
+            Book book = new Book(new ISBN("123412341X"), new Title("Title"), new Author("Author"))
+        expect:
+            !book.equals("not a book")
+    }
+
+    def "should have consistent toString format"() {
+        given:
+            Book book = new Book(new ISBN("123412341X"), new Title("Domain Driven Design"), new Author("Eric Evans"))
+        when:
+            String result = book.toString()
+        then:
+            result.contains("Book{")
+            result.contains("isbn=")
+            result.contains("title=")
+            result.contains("author=")
+    }
 }
 
 
