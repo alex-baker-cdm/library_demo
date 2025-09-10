@@ -1,4 +1,4 @@
-# Book State Management Guide
+# book-state-management guide
 
 This guide provides a comprehensive overview of book state management in the library system, covering both the original state model and the new state pattern implementation. The library system demonstrates two different architectural approaches to managing book states, each serving specific design purposes within the Domain-Driven Design framework.
 
