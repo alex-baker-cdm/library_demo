@@ -1,7 +1,6 @@
 package io.pillopl.library.lending.patron.model;
 
-import io.pillopl.library.lending.book.model.AvailableBook;
-import io.pillopl.library.lending.book.model.BookOnHold;
+import io.pillopl.library.lending.book.new_model.Book;
 
 import java.util.Objects;
 import java.util.Set;
@@ -20,8 +19,8 @@ class PatronHolds {
         return resourcesOnHold;
     }
 
-    boolean a(BookOnHold bookOnHold) {
-        Hold hold = new Hold(bookOnHold.getBookId(), bookOnHold.getHoldPlacedAt());
+    boolean a(Book book) {
+        Hold hold = new Hold(book.getBookId(), book.getCurrentBranch());
         return resourcesOnHold.contains(hold);
     }
 
@@ -29,7 +28,7 @@ class PatronHolds {
         return resourcesOnHold.size();
     }
 
-    boolean maximumHoldsAfterHolding(AvailableBook book) {
+    boolean maximumHoldsAfterHolding(Book book) {
         return count() + 1 == MAX_NUMBER_OF_HOLDS;
     }
 

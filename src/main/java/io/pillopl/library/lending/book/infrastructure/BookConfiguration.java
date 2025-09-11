@@ -3,7 +3,7 @@ package io.pillopl.library.lending.book.infrastructure;
 import io.pillopl.library.commons.events.DomainEvents;
 import io.pillopl.library.lending.book.application.CreateAvailableBookOnInstanceAddedEventHandler;
 import io.pillopl.library.lending.book.application.PatronEventsHandler;
-import io.pillopl.library.lending.book.model.BookRepository;
+import io.pillopl.library.lending.book.new_model.BookRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
