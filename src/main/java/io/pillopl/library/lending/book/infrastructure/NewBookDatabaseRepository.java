@@ -40,8 +40,21 @@ public class NewBookDatabaseRepository implements BookRepository, FindAvailableB
 
     private Option<BookDatabaseEntity> findBookById(BookId bookId) {
         return Try
-                .ofSupplier(() -> of(jdbcTemplate.queryForObject("SELECT b.* FROM book_database_entity b WHERE b.book_id = ?", 
-                        new BeanPropertyRowMapper<>(BookDatabaseEntity.class), bookId.getBookId())))
+                .ofSupplier(() -> of(jdbcTemplate.queryForObject("SELECT * FROM book_database_entity WHERE book_id = ?", 
+                        (rs, rowNum) -> {
+                            BookDatabaseEntity entity = new BookDatabaseEntity();
+                            entity.book_id = (UUID) rs.getObject("book_id");
+                            entity.book_type = BookType.valueOf(rs.getString("book_type"));
+                            entity.book_state = BookDatabaseEntity.BookState.valueOf(rs.getString("book_state"));
+                            entity.available_at_branch = (UUID) rs.getObject("available_at_branch");
+                            entity.on_hold_at_branch = (UUID) rs.getObject("on_hold_at_branch");
+                            entity.on_hold_by_patron = (UUID) rs.getObject("on_hold_by_patron");
+                            entity.on_hold_till = rs.getTimestamp("on_hold_till") != null ? rs.getTimestamp("on_hold_till").toInstant() : null;
+                            entity.checked_out_at_branch = (UUID) rs.getObject("checked_out_at_branch");
+                            entity.checked_out_by_patron = (UUID) rs.getObject("checked_out_by_patron");
+                            entity.version = rs.getInt("version");
+                            return entity;
+                        }, bookId.getBookId())))
                 .getOrElse(none());
     }
 
@@ -85,8 +98,7 @@ public class NewBookDatabaseRepository implements BookRepository, FindAvailableB
     private void insertNew(Book book) {
         BookDatabaseEntity entity = fromDomainModel(book);
         jdbcTemplate.update("INSERT INTO book_database_entity " +
-                "(id, " +
-                "book_id, " +
+                "(book_id, " +
                 "book_type, " +
                 "book_state, " +
                 "available_at_branch," +
@@ -96,7 +108,7 @@ public class NewBookDatabaseRepository implements BookRepository, FindAvailableB
                 "checked_out_at_branch, " +
                 "checked_out_by_patron, " +
                 "version) VALUES " +
-                "(book_database_entity_seq.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 entity.book_id, 
                 entity.book_type.toString(), 
                 entity.book_state.toString(), 
@@ -121,7 +133,7 @@ public class NewBookDatabaseRepository implements BookRepository, FindAvailableB
         
         if ("AVAILABLE".equals(stateName)) {
             entity.book_state = Available;
-            entity.available_at_branch = currentBranch.getLibraryBranchId();
+            entity.available_at_branch = currentBranch != null ? currentBranch.getLibraryBranchId() : null;
             entity.on_hold_at_branch = null;
             entity.on_hold_by_patron = null;
             entity.on_hold_till = null;
@@ -130,8 +142,8 @@ public class NewBookDatabaseRepository implements BookRepository, FindAvailableB
         } else if ("ON_HOLD".equals(stateName)) {
             entity.book_state = OnHold;
             entity.available_at_branch = null;
-            entity.on_hold_at_branch = currentBranch.getLibraryBranchId();
-            entity.on_hold_by_patron = currentPatron.getPatronId();
+            entity.on_hold_at_branch = currentBranch != null ? currentBranch.getLibraryBranchId() : null;
+            entity.on_hold_by_patron = currentPatron != null ? currentPatron.getPatronId() : null;
             entity.on_hold_till = getHoldTillFromState(book.getState());
             entity.checked_out_at_branch = null;
             entity.checked_out_by_patron = null;
@@ -141,8 +153,8 @@ public class NewBookDatabaseRepository implements BookRepository, FindAvailableB
             entity.on_hold_at_branch = null;
             entity.on_hold_by_patron = null;
             entity.on_hold_till = null;
-            entity.checked_out_at_branch = currentBranch.getLibraryBranchId();
-            entity.checked_out_by_patron = currentPatron.getPatronId();
+            entity.checked_out_at_branch = currentBranch != null ? currentBranch.getLibraryBranchId() : null;
+            entity.checked_out_by_patron = currentPatron != null ? currentPatron.getPatronId() : null;
         }
         
         return entity;
