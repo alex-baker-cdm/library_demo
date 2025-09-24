@@ -5,7 +5,7 @@ import java.util.Objects;
 
 class ISBN {
 
-    private static final String VERY_SIMPLE_ISBN_CHECK = "^\\d{9}[\\d|X]$";
+    private static final String VERY_SIMPLE_ISBN_CHECK = "^(\\d{9}[\\d|X]|\\d{13})$";
 
     private final String isbn;
 
