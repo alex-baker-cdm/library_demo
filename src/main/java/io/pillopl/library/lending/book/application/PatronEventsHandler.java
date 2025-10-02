@@ -2,112 +2,99 @@ package io.pillopl.library.lending.book.application;
 
 import io.pillopl.library.catalogue.BookId;
 import io.pillopl.library.commons.events.DomainEvents;
-import io.pillopl.library.lending.book.model.*;
+import io.pillopl.library.lending.book.new_model.*;
+import io.pillopl.library.lending.book.model.BookDuplicateHoldFound;
 import io.pillopl.library.lending.patron.model.PatronEvent.*;
 import io.pillopl.library.lending.patron.model.PatronId;
-import io.vavr.API;
+import io.pillopl.library.lending.librarybranch.model.LibraryBranchId;
 
 import java.time.Instant;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.Predicates.instanceOf;
-
 public class PatronEventsHandler {
 
-    private final BookRepository bookRepository;
+    private final io.pillopl.library.lending.book.new_model.BookRepository bookRepository;
     private final DomainEvents domainEvents;
 
-    public PatronEventsHandler(BookRepository bookRepository, DomainEvents domainEvents) {
+    public PatronEventsHandler(io.pillopl.library.lending.book.new_model.BookRepository bookRepository, DomainEvents domainEvents) {
         this.bookRepository = bookRepository;
         this.domainEvents = domainEvents;
     }
 
     void handle(BookPlacedOnHold bookPlacedOnHold) {
         bookRepository.findBy(new BookId(bookPlacedOnHold.getBookId()))
-                .map(book -> handleBookPlacedOnHold(book, bookPlacedOnHold))
-                .map(this::saveBook);
+                .peek(book -> handleBookPlacedOnHold(book, bookPlacedOnHold))
+                .peek(this::saveBook);
     }
 
     void handle(BookCheckedOut bookCheckedOut) {
         bookRepository.findBy(new BookId(bookCheckedOut.getBookId()))
-                .map(book -> handleBookCheckedOut(book, bookCheckedOut))
-                .map(this::saveBook);
+                .peek(book -> handleBookCheckedOut(book, bookCheckedOut))
+                .peek(this::saveBook);
     }
 
     void handle(BookHoldExpired holdExpired) {
         bookRepository.findBy(new BookId(holdExpired.getBookId()))
-                .map(book -> handleBookHoldExpired(book, holdExpired))
-                .map(this::saveBook);
+                .peek(book -> handleBookHoldExpired(book, holdExpired))
+                .peek(this::saveBook);
     }
 
     void handle(BookHoldCanceled holdCanceled) {
         bookRepository.findBy(new BookId(holdCanceled.getBookId()))
-                .map(book -> handleBookHoldCanceled(book,  holdCanceled))
-                .map(this::saveBook);
+                .peek(book -> handleBookHoldCanceled(book, holdCanceled))
+                .peek(this::saveBook);
     }
 
     void handle(BookReturned bookReturned) {
         bookRepository.findBy(new BookId(bookReturned.getBookId()))
-                .map(book -> handleBookReturned(book, bookReturned))
-                .map(this::saveBook);
+                .peek(book -> handleBookReturned(book, bookReturned))
+                .peek(this::saveBook);
     }
 
 
-    private Book handleBookPlacedOnHold(Book book, BookPlacedOnHold bookPlacedOnHold) {
-        return API.Match(book).of(
-                Case($(instanceOf(AvailableBook.class)), availableBook -> availableBook.handle(bookPlacedOnHold)),
-                Case($(instanceOf(BookOnHold.class)), bookOnHold -> raiseDuplicateHoldFoundEvent(bookOnHold, bookPlacedOnHold)),
-                Case($(), () -> book)
-        );
-    }
-
-    private BookOnHold raiseDuplicateHoldFoundEvent(BookOnHold onHold, BookPlacedOnHold bookPlacedOnHold) {
-        if(onHold.by(new PatronId(bookPlacedOnHold.getPatronId()))) {
-            return onHold;
-        }
-        domainEvents.publish(
-                new BookDuplicateHoldFound(
+    private void handleBookPlacedOnHold(Book book, BookPlacedOnHold bookPlacedOnHold) {
+        BookState state = book.getState();
+        
+        if (state instanceof OnHoldState) {
+            OnHoldState onHoldState = (OnHoldState) state;
+            PatronId requestingPatron = new PatronId(bookPlacedOnHold.getPatronId());
+            
+            if (!onHoldState.getByPatron().equals(requestingPatron)) {
+                domainEvents.publish(
+                    new BookDuplicateHoldFound(
                         Instant.now(),
-                        onHold.getByPatron().getPatronId(),
+                        onHoldState.getByPatron().getPatronId(),
                         bookPlacedOnHold.getPatronId(),
                         bookPlacedOnHold.getLibraryBranchId(),
                         bookPlacedOnHold.getBookId()));
-        return onHold;
+            }
+        } else {
+            book.placeOnHold(
+                new PatronId(bookPlacedOnHold.getPatronId()),
+                new LibraryBranchId(bookPlacedOnHold.getLibraryBranchId()),
+                bookPlacedOnHold.getHoldTill());
+        }
     }
 
-
-    private Book handleBookHoldExpired(Book book, BookHoldExpired holdExpired) {
-        return API.Match(book).of(
-                Case($(instanceOf(BookOnHold.class)), onHold -> onHold.handle(holdExpired)),
-                Case($(), () -> book)
-        );
+    private void handleBookHoldExpired(Book book, BookHoldExpired holdExpired) {
+        book.expireHold();
     }
 
-    private Book handleBookHoldCanceled(Book book, BookHoldCanceled holdCanceled) {
-        return API.Match(book).of(
-                Case($(instanceOf(BookOnHold.class)), onHold -> onHold.handle(holdCanceled)),
-                Case($(), () -> book)
-        );
+    private void handleBookHoldCanceled(Book book, BookHoldCanceled holdCanceled) {
+        book.cancelHold();
     }
 
-    private Book handleBookCheckedOut(Book book, BookCheckedOut bookCheckedOut) {
-        return API.Match(book).of(
-                Case($(instanceOf(BookOnHold.class)), onHold -> onHold.handle(bookCheckedOut)),
-                Case($(), () -> book)
-        );
+    private void handleBookCheckedOut(Book book, BookCheckedOut bookCheckedOut) {
+        book.checkout(
+            new PatronId(bookCheckedOut.getPatronId()),
+            new LibraryBranchId(bookCheckedOut.getLibraryBranchId()));
     }
 
-    private Book handleBookReturned(Book book, BookReturned bookReturned) {
-        return API.Match(book).of(
-                Case($(instanceOf(CheckedOutBook.class)), checkedOut -> checkedOut.handle(bookReturned)),
-                Case($(), () -> book)
-        );
+    private void handleBookReturned(Book book, BookReturned bookReturned) {
+        book.returnBook(new LibraryBranchId(bookReturned.getLibraryBranchId()));
     }
 
-    private Book saveBook(Book book) {
+    private void saveBook(Book book) {
         bookRepository.save(book);
-        return book;
     }
 
 }

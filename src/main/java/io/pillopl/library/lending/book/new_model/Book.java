@@ -36,6 +36,10 @@ public class Book {
         this.state = new AvailableState(this, branch);
     }
 
+    void setState(BookState state) {
+        this.state = state;
+    }
+
     // State transition methods
     public void placeOnHold(PatronId patronId, LibraryBranchId branchId, Instant holdTill) {
         if (state.canBePutOnHold(patronId)) {

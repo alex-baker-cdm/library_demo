@@ -49,5 +49,36 @@ class BookDatabaseEntity {
     private CheckedOutBook toCheckedOutBook() {
         return new CheckedOutBook(new BookId(book_id), book_type,  new LibraryBranchId(checked_out_at_branch), new PatronId(checked_out_by_patron), new Version(version));
     }
+
+    io.pillopl.library.lending.book.new_model.Book toNewBook() {
+        LibraryBranchId branch = available_at_branch != null ? new LibraryBranchId(available_at_branch) :
+                                on_hold_at_branch != null ? new LibraryBranchId(on_hold_at_branch) :
+                                new LibraryBranchId(checked_out_at_branch);
+        
+        io.pillopl.library.lending.book.new_model.Book book = 
+            new io.pillopl.library.lending.book.new_model.Book(
+                new BookId(book_id),
+                book_type,
+                branch,
+                new Version(version)
+            );
+        
+        if (book_state == OnHold) {
+            book.setState(new io.pillopl.library.lending.book.new_model.OnHoldState(
+                book,
+                new LibraryBranchId(on_hold_at_branch),
+                new PatronId(on_hold_by_patron),
+                on_hold_till
+            ));
+        } else if (book_state == CheckedOut) {
+            book.setState(new io.pillopl.library.lending.book.new_model.CheckedOutState(
+                book,
+                new LibraryBranchId(checked_out_at_branch),
+                new PatronId(checked_out_by_patron)
+            ));
+        }
+        
+        return book;
+    }
 }
 
