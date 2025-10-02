@@ -36,7 +36,7 @@ public class Book {
         this.state = new AvailableState(this, branch);
     }
 
-    void setState(BookState state) {
+    public void setState(BookState state) {
         this.state = state;
     }
 
