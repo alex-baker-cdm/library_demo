@@ -29,6 +29,15 @@ public class Book {
         return version;
     }
 
+    /**
+     * Sets the book state. This method is intended for use by the repository
+     * when reconstructing a book from the database only.
+     */
+    public void setState(BookState state) {
+        this.state = state;
+    }
+
+
     public Book(BookId bookId, BookType bookType, LibraryBranchId branch, Version version) {
         this.bookId = bookId;
         this.bookType = bookType;
